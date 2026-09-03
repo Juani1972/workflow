@@ -1,0 +1,58 @@
+{
+  "_readme": "Reasoned reconstruction, same convention as fika-sync/engine_spec.json. This workflow's 'railcall' provider includes an UNCONFIRMED capability: webhook_calendar_change (that RailCall can trigger a workflow when a specific Google Calendar event changes, instead of only via cron). See this workflow's README.md for detail.",
+  "workflow_id": "meeting-debt",
+  "version": "0.1.0",
+  "airlock": {
+    "mode": "preview_approve_execute",
+    "dry_run_default": true,
+    "requires_signed_receipt": true
+  },
+  "providers": [
+    {
+      "name": "calcom",
+      "module": "calcom-pro",
+      "auth": "oauth_or_api_key",
+      "capabilities": ["create_booking"],
+      "validated_against_real_account": false
+    },
+    {
+      "name": "google_calendar",
+      "module": "gcal",
+      "auth": "oauth",
+      "capabilities": ["list_events", "find_next_free_slot"],
+      "validated_against_real_account": false
+    },
+    {
+      "name": "slack",
+      "module": "slack",
+      "auth": "oauth",
+      "capabilities": ["post_message", "slash_command"],
+      "validated_against_real_account": false
+    },
+    {
+      "name": "railcall",
+      "module": null,
+      "auth": "n/a",
+      "capabilities": ["cron_weekly", "write_receipt"],
+      "unconfirmed_capabilities": ["webhook_calendar_change"],
+      "note": "webhook_calendar_change assumes RailCall can notify about a change to ONE specific Google Calendar event, not just run on a cron schedule. Not confirmed against RailCall's official documentation."
+    }
+  ],
+  "internal_modules": [
+    {
+      "name": "meeting-debt-tracker",
+      "external_calls": false,
+      "requires_credentials": false,
+      "tests_status_as_of_2026_08_30": "11/11 passing"
+    }
+  ],
+  "spend_limits": {
+    "max_spend_cents": 200,
+    "enforced_at": "runtime"
+  },
+  "retry_policy": {
+    "max_retries": 3,
+    "backoff": "exponential",
+    "applies_to": ["calcom", "google_calendar", "slack"]
+  }
+}

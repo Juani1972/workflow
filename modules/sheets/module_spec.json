@@ -1,0 +1,28 @@
+{
+  "_readme": "Reconstructed format, same as the other provider modules. Not tested against a real spreadsheet. Watch out for the OAuth scope: if gcal's refresh token was generated with only the Calendar scope, this module will fail with 403 until consent is redone including https://www.googleapis.com/auth/spreadsheets.",
+  "module_id": "sheets",
+  "version": "0.1.0",
+  "display_name": "Google Sheets",
+  "description": "Appends rows to a Google Sheets spreadsheet. Used by fika-sync (export_to_sheet, log_history) and by onboarding-automator (onboarding checklist). Requires GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET and GOOGLE_REFRESH_TOKEN (with the spreadsheets scope).",
+  "language": "python",
+  "entrypoint": "actions.py",
+  "requires_credentials": true,
+  "required_env_vars": ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "GOOGLE_REFRESH_TOKEN", "SHEETS_SPREADSHEET_ID"],
+  "external_calls": true,
+  "external_calls_validated_against_real_account": false,
+  "dependencies": ["requests>=2.31,<3"],
+  "actions": [
+    {
+      "name": "append_row",
+      "function": "append_row",
+      "inputs": ["spreadsheet_id", "sheet_range", "row_values", "value_input_option"],
+      "output": "append_response",
+      "sheets_endpoint": "POST /spreadsheets/{spreadsheetId}/values/{range}:append"
+    }
+  ],
+  "tests": {
+    "framework": "pytest",
+    "path": "tests/test_actions.py",
+    "status_as_of_2026_08_30": "5/5 passing (with the HTTP layer mocked)"
+  }
+}

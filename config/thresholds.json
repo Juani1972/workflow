@@ -1,0 +1,21 @@
+{
+  "_comment": "Default thresholds, editable without touching code. An individual change is only written here after explicit confirmation from the owner (see the request_threshold_change / apply_threshold_change node in workflow.csv).",
+  "default_weekly_hours": {
+    "ic": 15,
+    "manager": 18,
+    "lead": 20
+  },
+  "default_daily_hours": {
+    "ic": 4,
+    "manager": 5,
+    "lead": 6
+  },
+  "severity_bands": {
+    "green_max_pct": 80,
+    "yellow_max_pct": 100
+  },
+  "per_person_overrides": {
+    "_comment": "person_id: weekly hours. Only populated via apply_threshold_change, never by hand in production.",
+    "p2": 20
+  }
+}

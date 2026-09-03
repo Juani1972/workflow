@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fika Sync — Mockup</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root{
+  --ink:#14181F;
+  --panel:#1D232D;
+  --panel-2:#242B36;
+  --paper:#EFE9DE;
+  --line: rgba(239,233,222,0.10);
+  --line-strong: rgba(239,233,222,0.20);
+  --text: #EFE9DE;
+  --text-dim: rgba(239,233,222,0.58);
+  --text-faint: rgba(239,233,222,0.36);
+  --green:#6FA287;
+  --amber:#D9A441;
+  --clay:#C1614C;
+  --brass:#B98A4E;
+  --radius: 14px;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--ink);color:var(--text);
+  font-family:'Inter',-apple-system,sans-serif; -webkit-font-smoothing:antialiased;}
+body{padding-bottom:40px;}
+
+.mono{font-family:'IBM Plex Mono',monospace;}
+
+.app{max-width:460px;margin:0 auto;min-height:100vh;background:var(--ink);
+  border-left:1px solid var(--line); border-right:1px solid var(--line);}
+
+/* ---------- header / console rail ---------- */
+header.top{position:sticky;top:0;z-index:10;background:rgba(20,24,31,0.92);
+  backdrop-filter:blur(8px); border-bottom:1px solid var(--line); padding:18px 20px 0;}
+.brand{display:flex;align-items:center;gap:9px;margin-bottom:16px;}
+.brand-mark{width:9px;height:9px;border-radius:50%;background:var(--brass);
+  box-shadow:0 0 0 3px rgba(185,138,78,0.18);}
+.brand-name{font-family:'Fraunces',serif;font-weight:600;font-size:15px;
+  letter-spacing:0.02em;}
+.brand-sub{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-faint);
+  letter-spacing:0.08em;margin-left:auto;}
+
+nav.tabs{display:flex;gap:2px;background:var(--panel);border-radius:10px 10px 0 0;
+  padding:3px;position:relative;}
+nav.tabs button{flex:1;border:none;background:transparent;color:var(--text-dim);
+  font-family:'Inter';font-size:11.5px;font-weight:600;letter-spacing:0.01em;
+  padding:10px 4px;border-radius:8px;cursor:pointer;transition:color .15s;
+  display:flex;flex-direction:column;align-items:center;gap:4px;}
+nav.tabs button .dial{width:5px;height:5px;border-radius:50%;background:var(--text-faint);
+  transition:all .15s;}
+nav.tabs button.active{color:var(--paper);}
+nav.tabs button.active .dial{background:var(--brass);box-shadow:0 0 0 3px rgba(185,138,78,0.22);}
+
+/* ---------- shared ---------- */
+main{padding:22px 20px 10px;}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.12em;
+  color:var(--brass);text-transform:uppercase;margin-bottom:6px;}
+h1.screen-title{font-family:'Fraunces',serif;font-weight:500;font-size:23px;
+  line-height:1.15;margin:0 0 22px;color:var(--paper);}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px 16px 18px;margin-bottom:14px;position:relative;overflow:hidden;}
+.card-label{font-size:10.5px;font-family:'IBM Plex Mono';letter-spacing:0.08em;
+  color:var(--text-faint);text-transform:uppercase;margin-bottom:10px;}
+
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;
+  font-family:'IBM Plex Mono';padding:3px 9px 3px 7px;border-radius:20px;font-weight:500;}
+.pill .dot{width:5px;height:5px;border-radius:50%;}
+.pill.green{background:rgba(111,162,135,0.14);color:var(--green);}
+.pill.green .dot{background:var(--green);}
+.pill.amber{background:rgba(217,164,65,0.14);color:var(--amber);}
+.pill.amber .dot{background:var(--amber);}
+.pill.clay{background:rgba(193,97,76,0.14);color:var(--clay);}
+.pill.clay .dot{background:var(--clay);}
+
+.stamp{position:absolute;top:14px;right:-30px;transform:rotate(28deg);
+  font-family:'IBM Plex Mono';font-size:9px;letter-spacing:0.15em;font-weight:600;
+  padding:3px 34px;border:1px solid currentColor;color:var(--text-faint);opacity:0.55;}
+
+/* ================= WAR ROOM ================= */
+.thermo-wrap{display:flex;align-items:center;gap:14px;}
+.thermo-num{font-family:'Fraunces',serif;font-size:34px;font-weight:500;color:var(--paper);
+  line-height:1;}
+.thermo-bar{flex:1;height:8px;border-radius:5px;background:var(--panel-2);overflow:hidden;
+  position:relative;}
+.thermo-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--brass));
+  border-radius:5px;}
+.thermo-caption{font-size:12px;color:var(--text-dim);margin-top:10px;line-height:1.5;}
+
+table.heatmap{width:100%;border-collapse:collapse;margin-top:4px;}
+table.heatmap th{font-family:'IBM Plex Mono';font-size:9.5px;color:var(--text-faint);
+  font-weight:500;padding-bottom:8px;text-align:center;}
+table.heatmap th:first-child{text-align:left;}
+table.heatmap td{padding:3px;text-align:center;}
+table.heatmap td.name{text-align:left;font-size:12px;color:var(--text);padding-right:6px;
+  white-space:nowrap;}
+.cell{width:30px;height:26px;border-radius:6px;margin:0 auto;display:flex;align-items:center;
+  justify-content:center;font-family:'IBM Plex Mono';font-size:9.5px;font-weight:500;}
+.cell.g{background:rgba(111,162,135,0.22);color:var(--green);}
+.cell.a{background:rgba(217,164,65,0.26);color:var(--amber);}
+.cell.c{background:rgba(193,97,76,0.30);color:var(--clay);}
+.cell.empty{background:var(--panel-2);color:var(--text-faint);}
+
+.feed-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);}
+.feed-item:last-child{border-bottom:none;}
+.feed-time{font-family:'IBM Plex Mono';font-size:10.5px;color:var(--text-faint);
+  min-width:40px;padding-top:1px;}
+.feed-text{font-size:12.5px;color:var(--text-dim);line-height:1.4;}
+.feed-text b{color:var(--paper);font-weight:600;}
+
+/* ================= COCKPIT ================= */
+.approval-card{border:1px solid var(--line-strong);}
+.approval-top{display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:8px;}
+.approval-title{font-size:14px;font-weight:600;color:var(--paper);}
+.approval-desc{font-size:12.5px;color:var(--text-dim);line-height:1.5;margin-bottom:12px;}
+.diff-row{font-family:'IBM Plex Mono';font-size:11px;background:var(--panel-2);
+  border-radius:8px;padding:9px 11px;margin-bottom:12px;color:var(--text-dim);}
+.diff-row .to{color:var(--green);}
+.btn-row{display:flex;gap:8px;}
+.btn{flex:1;border:none;border-radius:9px;padding:10px 0;font-size:12px;font-weight:600;
+  cursor:pointer;font-family:'Inter';letter-spacing:0.01em;transition:opacity .15s;}
+.btn:active{opacity:0.7;}
+.btn.approve{background:var(--brass);color:#14181F;}
+.btn.reject{background:transparent;color:var(--clay);border:1px solid rgba(193,97,76,0.4);}
+.btn.modify{background:transparent;color:var(--text-dim);border:1px solid var(--line-strong);}
+
+/* ================= PULSE ================= */
+.slider-row{margin-bottom:20px;}
+.slider-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+.slider-name{font-size:13px;color:var(--text);font-weight:500;}
+.slider-val{font-family:'IBM Plex Mono';font-size:13px;color:var(--brass);}
+input[type=range]{-webkit-appearance:none;width:100%;height:4px;border-radius:3px;
+  background:var(--panel-2);}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;
+  border-radius:50%;background:var(--brass);border:3px solid var(--ink);cursor:pointer;
+  box-shadow:0 0 0 1px var(--brass);}
+
+.team-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);}
+.team-row:last-child{border-bottom:none;}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--panel-2);
+  display:flex;align-items:center;justify-content:center;font-family:'Fraunces';
+  font-size:12px;color:var(--paper);flex-shrink:0;}
+.team-info{flex:1;}
+.team-name{font-size:13px;color:var(--text);}
+.team-role{font-size:10.5px;color:var(--text-faint);font-family:'IBM Plex Mono';}
+
+.stepper{display:flex;gap:8px;margin-top:2px;}
+.step{flex:1;text-align:center;padding:12px 6px;border-radius:10px;
+  border:1px solid var(--line);}
+.step.connected{border-color:rgba(111,162,135,0.35);}
+.step-name{font-size:11.5px;font-weight:600;margin-bottom:6px;}
+.step-status{font-size:9.5px;font-family:'IBM Plex Mono';color:var(--text-faint);}
+.step.connected .step-status{color:var(--green);}
+
+/* ================= RETROSPECTIVE ================= */
+.chart{display:flex;align-items:flex-end;gap:6px;height:90px;margin:6px 0 4px;}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.bar{width:100%;border-radius:4px 4px 2px 2px;background:var(--panel-2);position:relative;}
+.bar.hi{background:var(--brass);}
+.bar-label{font-size:8.5px;font-family:'IBM Plex Mono';color:var(--text-faint);}
+
+.history-row{padding:12px 0;border-bottom:1px solid var(--line);position:relative;}
+.history-row:last-child{border-bottom:none;}
+.history-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.history-week{font-size:12.5px;color:var(--text);font-weight:500;}
+.history-id{font-family:'IBM Plex Mono';font-size:9.5px;color:var(--text-faint);}
+.history-sub{font-size:11px;color:var(--text-dim);}
+
+.export-row{display:flex;gap:8px;margin-top:16px;}
+.export-btn{flex:1;border:1px dashed var(--line-strong);background:transparent;color:var(--text-dim);
+  border-radius:9px;padding:10px 0;font-size:11.5px;font-family:'IBM Plex Mono';cursor:pointer;}
+
+.screen{display:none;}
+.screen.active{display:block;animation:fade .25s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+.foot-note{font-family:'IBM Plex Mono';font-size:9.5px;color:var(--text-faint);
+  text-align:center;padding:22px 30px 0;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-name">Fika Sync</div>
+      <div class="brand-sub">MOCKUP · NO REAL DATA</div>
+    </div>
+    <nav class="tabs">
+      <button class="active" data-target="warroom"><span class="dial"></span>War Room</button>
+      <button data-target="cockpit"><span class="dial"></span>Cockpit</button>
+      <button data-target="pulse"><span class="dial"></span>Pulse</button>
+      <button data-target="retro"><span class="dial"></span>Retro</button>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- ============ WAR ROOM ============ -->
+    <section class="screen active" id="warroom">
+      <div class="eyebrow">Team status — week of Aug 24</div>
+      <h1 class="screen-title">War Room</h1>
+
+      <div class="card">
+        <div class="card-label">Focus thermometer</div>
+        <div class="thermo-wrap">
+          <div class="thermo-num">62%</div>
+          <div class="thermo-bar"><div class="thermo-fill" style="width:62%"></div></div>
+        </div>
+        <div class="thermo-caption">Of the total time in meetings, 62% already has a compensatory focus block assigned this week.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Load per person · Mon–Fri</div>
+        <table class="heatmap">
+          <tr><th></th><th>M</th><th>T</th><th>W</th><th>T</th><th>F</th></tr>
+          <tr>
+            <td class="name">Alex</td>
+            <td><div class="cell g">2h</div></td><td><div class="cell g">1h</div></td>
+            <td><div class="cell a">4h</div></td><td><div class="cell g">2h</div></td>
+            <td><div class="cell empty">–</div></td>
+          </tr>
+          <tr>
+            <td class="name">Sam</td>
+            <td><div class="cell a">5h</div></td><td><div class="cell c">6h</div></td>
+            <td><div class="cell c">6h</div></td><td><div class="cell a">4h</div></td>
+            <td><div class="cell g">2h</div></td>
+          </tr>
+          <tr>
+            <td class="name">Noa</td>
+            <td><div class="cell g">1h</div></td><td><div class="cell g">2h</div></td>
+            <td><div class="cell g">1h</div></td><td><div class="cell empty">–</div></td>
+            <td><div class="cell g">1h</div></td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Live activity</div>
+        <div class="feed-item">
+          <div class="feed-time mono">09:14</div>
+          <div class="feed-text">Focus time blocked for <b>Noa</b> (10:00–12:00)</div>
+        </div>
+        <div class="feed-item">
+          <div class="feed-time mono">08:52</div>
+          <div class="feed-text">Rebalance applied to the <b>design</b> queue, moved away from Sam</div>
+        </div>
+        <div class="feed-item">
+          <div class="feed-time mono">08:40</div>
+          <div class="feed-text">Weekly digest published to <b>#team-wellbeing</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ COCKPIT ============ -->
+    <section class="screen" id="cockpit">
+      <div class="eyebrow">Airlock — pending approval</div>
+      <h1 class="screen-title">Cockpit</h1>
+
+      <div class="card approval-card">
+        <div class="stamp">preview</div>
+        <div class="approval-top">
+          <div class="approval-title">Block focus time</div>
+          <span class="pill clay"><span class="dot"></span>red</span>
+        </div>
+        <div class="approval-desc">Sam exceeded 100% of their weekly threshold. Proposing to block 3h on Thursday morning.</div>
+        <div class="diff-row">Thu 09:00–12:00 → <span class="to">Focus Time (auto)</span></div>
+        <div class="btn-row">
+          <button class="btn approve">Approve</button>
+          <button class="btn modify">Modify</button>
+          <button class="btn reject">Reject</button>
+        </div>
+      </div>
+
+      <div class="card approval-card">
+        <div class="stamp">preview</div>
+        <div class="approval-top">
+          <div class="approval-title">Reschedule meeting</div>
+          <span class="pill amber"><span class="dot"></span>conflict</span>
+        </div>
+        <div class="approval-desc">The proposed slot for Alex already had an accepted meeting. An alternative slot was found.</div>
+        <div class="diff-row">Wed 14:00 → <span class="to">Wed 16:30</span></div>
+        <div class="btn-row">
+          <button class="btn approve">Approve</button>
+          <button class="btn modify">Modify</button>
+          <button class="btn reject">Reject</button>
+        </div>
+      </div>
+
+      <div class="card approval-card">
+        <div class="stamp">preview</div>
+        <div class="approval-top">
+          <div class="approval-title">Rebalance round-robin</div>
+          <span class="pill amber"><span class="dot"></span>yellow</span>
+        </div>
+        <div class="approval-desc">Move new incoming support meetings away from Sam for 5 days.</div>
+        <div class="diff-row">queue: support → <span class="to">exclude Sam (5d)</span></div>
+        <div class="btn-row">
+          <button class="btn approve">Approve</button>
+          <button class="btn modify">Modify</button>
+          <button class="btn reject">Reject</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PULSE ============ -->
+    <section class="screen" id="pulse">
+      <div class="eyebrow">Thresholds and configuration</div>
+      <h1 class="screen-title">Pulse</h1>
+
+      <div class="card">
+        <div class="card-label">Weekly threshold by role</div>
+        <div class="slider-row">
+          <div class="slider-top"><span class="slider-name">Individual contributor</span><span class="slider-val mono" id="val-ic">15h</span></div>
+          <input type="range" min="5" max="30" value="15" oninput="document.getElementById('val-ic').textContent=this.value+'h'">
+        </div>
+        <div class="slider-row">
+          <div class="slider-top"><span class="slider-name">Manager</span><span class="slider-val mono" id="val-mgr">18h</span></div>
+          <input type="range" min="5" max="30" value="18" oninput="document.getElementById('val-mgr').textContent=this.value+'h'">
+        </div>
+        <div class="slider-row" style="margin-bottom:4px">
+          <div class="slider-top"><span class="slider-name">Lead</span><span class="slider-val mono" id="val-lead">20h</span></div>
+          <input type="range" min="5" max="30" value="20" oninput="document.getElementById('val-lead').textContent=this.value+'h'">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Team</div>
+        <div class="team-row">
+          <div class="avatar">A</div>
+          <div class="team-info"><div class="team-name">Alex Ruiz</div><div class="team-role">IC</div></div>
+          <span class="pill green"><span class="dot"></span>ok</span>
+        </div>
+        <div class="team-row">
+          <div class="avatar">S</div>
+          <div class="team-info"><div class="team-name">Sam Torres</div><div class="team-role">MANAGER</div></div>
+          <span class="pill clay"><span class="dot"></span>ok</span>
+        </div>
+        <div class="team-row">
+          <div class="avatar">N</div>
+          <div class="team-info"><div class="team-name">Noa Fernández</div><div class="team-role">IC</div></div>
+          <span class="pill green"><span class="dot"></span>ok</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Integrations</div>
+        <div class="stepper">
+          <div class="step connected"><div class="step-name">Cal.com</div><div class="step-status">connected</div></div>
+          <div class="step connected"><div class="step-name">Google Cal</div><div class="step-status">connected</div></div>
+          <div class="step"><div class="step-name">Slack</div><div class="step-status">pending</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ RETROSPECTIVE ============ -->
+    <section class="screen" id="retro">
+      <div class="eyebrow">History and trends</div>
+      <h1 class="screen-title">Retrospective</h1>
+
+      <div class="card">
+        <div class="card-label">Protected focus hours · last 8 weeks</div>
+        <div class="chart">
+          <div class="bar-wrap"><div class="bar" style="height:30%"></div><div class="bar-label">W1</div></div>
+          <div class="bar-wrap"><div class="bar" style="height:45%"></div><div class="bar-label">W2</div></div>
+          <div class="bar-wrap"><div class="bar" style="height:38%"></div><div class="bar-label">W3</div></div>
+          <div class="bar-wrap"><div class="bar" style="height:55%"></div><div class="bar-label">W4</div></div>
+          <div class="bar-wrap"><div class="bar" style="height:50%"></div><div class="bar-label">W5</div></div>
+          <div class="bar-wrap"><div class="bar" style="height:68%"></div><div class="bar-label">W6</div></div>
+          <div class="bar-wrap"><div class="bar hi" style="height:82%"></div><div class="bar-label">W7</div></div>
+          <div class="bar-wrap"><div class="bar hi" style="height:74%"></div><div class="bar-label">W8</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Run history</div>
+        <div class="history-row">
+          <div class="history-top"><span class="history-week">Week of Aug 24</span><span class="history-id mono">rcv_9f3a2e</span></div>
+          <div class="history-sub">1 person in red · 3h focus protected · digest sent</div>
+        </div>
+        <div class="history-row">
+          <div class="history-top"><span class="history-week">Week of Aug 17</span><span class="history-id mono">rcv_7c1d80</span></div>
+          <div class="history-sub">0 people in red · 1.5h focus protected</div>
+        </div>
+        <div class="history-row">
+          <div class="history-top"><span class="history-week">Week of Aug 10</span><span class="history-id mono">rcv_44b9f1</span></div>
+          <div class="history-sub">2 people in red · 5h focus protected · 1 conflict resolved</div>
+        </div>
+        <div class="export-row">
+          <button class="export-btn">↓ Export PDF</button>
+          <button class="export-btn">↓ Export CSV</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <p class="foot-note">Static design mockup — no action in this panel is executed against Cal.com, Google Calendar, or Slack.</p>
+</div>
+
+<script>
+document.querySelectorAll('nav.tabs button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.target).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

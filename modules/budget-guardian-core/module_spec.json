@@ -1,0 +1,49 @@
+{
+  "_readme": "Reconstructed format, same convention as team-health-analyzer. No external dependencies, no network calls. The capability to actually PAUSE a workflow depends on an unconfirmed RailCall feature -- see workflows/budget-guardian/README.md. This module only decides WHAT to pause, it doesn't execute it.",
+  "module_id": "budget-guardian-core",
+  "version": "0.1.0",
+  "display_name": "Budget Guardian Core",
+  "description": "Tracks RailCall workflows' spend against a cap, and decides when and who to pause. Pure logic, no external dependencies.",
+  "language": "python",
+  "entrypoint": "actions.py",
+  "requires_credentials": false,
+  "external_calls": false,
+  "actions": [
+    {
+      "name": "record_spend",
+      "function": "record_spend",
+      "inputs": ["ledger", "workflow_id", "amount_cents", "timestamp", "entry_id"],
+      "output": "updated_ledger"
+    },
+    {
+      "name": "get_total_spend",
+      "function": "get_total_spend",
+      "inputs": ["ledger", "since"],
+      "output": "total_cents"
+    },
+    {
+      "name": "get_spend_by_workflow",
+      "function": "get_spend_by_workflow",
+      "inputs": ["ledger", "since"],
+      "output": "spend_by_workflow"
+    },
+    {
+      "name": "should_pause_workflows",
+      "function": "should_pause_workflows",
+      "inputs": ["ledger", "max_spend_cents", "protected_workflow_ids", "since"],
+      "output": "pause_decision",
+      "note": "Decides WHAT to pause. Actually executing the pause depends on an unconfirmed RailCall capability."
+    },
+    {
+      "name": "build_budget_report",
+      "function": "build_budget_report",
+      "inputs": ["ledger", "max_spend_cents", "protected_workflow_ids", "since"],
+      "output": "report_text"
+    }
+  ],
+  "tests": {
+    "framework": "pytest",
+    "path": "tests/test_actions.py",
+    "status_as_of_2026_08_30": "11/11 passing"
+  }
+}

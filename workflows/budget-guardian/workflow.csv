@@ -1,0 +1,10 @@
+node_id,type,provider,action,depends_on,description
+trigger_hourly_budget_check,trigger,railcall,cron_hourly,,Triggers a budget check every hour
+trigger_budget_slash_command,trigger,slack,slash_command,,Triggers an on-demand check with /budget-check
+fetch_workflow_spend,transform,railcall,get_spend_log,trigger_hourly_budget_check;trigger_budget_slash_command,Fetches recent spend across all workflows (RailCall capability NOT confirmed, see README)
+record_spend,transform,budget-guardian-core,record_spend,fetch_workflow_spend,Records each spend in the internal ledger (pure logic)
+should_pause_workflows,transform,budget-guardian-core,should_pause_workflows,record_spend,Decides whether the budget was exceeded and which workflows should be paused (pure logic — never itself)
+build_budget_report,transform,budget-guardian-core,build_budget_report,should_pause_workflows,Generates the budget report text
+publish_budget_alert,effect,slack,post_message,build_budget_report,Publishes the budget status to Slack
+pause_workflows,effect,railcall,pause_workflow,should_pause_workflows,Pauses the workflows that exceeded the budget (RailCall capability NOT confirmed — this is the gap the original diagnosis flagged)
+audit_log_entry,effect,railcall,write_receipt,publish_budget_alert;pause_workflows,Generates the signed audit receipt for all actions taken

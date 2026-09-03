@@ -1,0 +1,21 @@
+{
+  "slug": "your-handle/zoom",
+  "version": "0.1.0",
+  "description": "Looks up the real duration of an already-finished Zoom meeting (meetings almost always run longer than scheduled).",
+  "auth": { "type": "oauth2", "provider": "zoom" },
+  "commands": [
+    {
+      "name": "get_meeting_actual_duration",
+      "description": "GET /past_meetings/{meetingUUID}. The UUID is URL-encoded twice (real Zoom gotcha with UUIDs containing '/').",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "meeting_uuid": { "type": "string" }
+        },
+        "required": ["meeting_uuid"]
+      },
+      "side_effects": "none"
+    }
+  ],
+  "license_required": false
+}

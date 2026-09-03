@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fika Sync — War Room (functional prototype)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root{
+  --ink:#14181F; --panel:#1D232D; --panel-2:#242B36; --paper:#EFE9DE;
+  --line: rgba(239,233,222,0.10); --line-strong: rgba(239,233,222,0.20);
+  --text:#EFE9DE; --text-dim: rgba(239,233,222,0.58); --text-faint: rgba(239,233,222,0.36);
+  --green:#6FA287; --amber:#D9A441; --clay:#C1614C; --brass:#B98A4E; --radius:14px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;background:var(--ink);color:var(--text);
+  font-family:'Inter',-apple-system,sans-serif;-webkit-font-smoothing:antialiased;}
+body{padding-bottom:40px;}
+.mono{font-family:'IBM Plex Mono',monospace;}
+.app{max-width:460px;margin:0 auto;min-height:100vh;background:var(--ink);
+  border-left:1px solid var(--line);border-right:1px solid var(--line);}
+
+header.top{position:sticky;top:0;z-index:10;background:rgba(20,24,31,0.92);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:18px 20px 14px;}
+.brand{display:flex;align-items:center;gap:9px;margin-bottom:4px;}
+.brand-mark{width:9px;height:9px;border-radius:50%;background:var(--brass);
+  box-shadow:0 0 0 3px rgba(185,138,78,0.18);}
+.brand-name{font-family:'Fraunces',serif;font-weight:600;font-size:15px;letter-spacing:0.02em;}
+.brand-sub{font-family:'IBM Plex Mono';font-size:9.5px;color:var(--brass);margin-left:auto;
+  letter-spacing:0.06em;}
+.brand-note{font-size:11px;color:var(--text-faint);line-height:1.4;}
+
+main{padding:22px 20px 10px;}
+.eyebrow{font-family:'IBM Plex Mono';font-size:10px;letter-spacing:0.12em;color:var(--brass);
+  text-transform:uppercase;margin-bottom:6px;}
+h1.screen-title{font-family:'Fraunces',serif;font-weight:500;font-size:23px;line-height:1.15;
+  margin:0 0 20px;color:var(--paper);}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px 16px 18px;margin-bottom:14px;}
+.card-label{font-size:10.5px;font-family:'IBM Plex Mono';letter-spacing:0.08em;
+  color:var(--text-faint);text-transform:uppercase;margin-bottom:10px;
+  display:flex;justify-content:space-between;align-items:center;}
+
+.thermo-wrap{display:flex;align-items:center;gap:14px;}
+.thermo-num{font-family:'Fraunces',serif;font-size:34px;font-weight:500;color:var(--paper);
+  line-height:1;min-width:66px;transition:color .2s;}
+.thermo-bar{flex:1;height:8px;border-radius:5px;background:var(--panel-2);overflow:hidden;}
+.thermo-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--brass));
+  border-radius:5px;transition:width .3s ease;}
+.thermo-caption{font-size:12px;color:var(--text-dim);margin-top:10px;line-height:1.5;}
+
+.table-scroll{overflow-x:auto;margin:0 -4px;padding:0 4px;}
+table.heatmap{width:100%;border-collapse:collapse;min-width:400px;}
+table.heatmap th{font-family:'IBM Plex Mono';font-size:9px;color:var(--text-faint);
+  font-weight:500;padding-bottom:8px;text-align:center;}
+table.heatmap th:first-child,table.heatmap th:nth-child(2){text-align:left;}
+table.heatmap td{padding:3px;text-align:center;vertical-align:middle;}
+td.name{text-align:left;padding-right:4px;}
+.p-name{font-size:12px;color:var(--text);background:transparent;border:none;
+  border-bottom:1px dashed var(--line-strong);color:var(--text);font-family:'Inter';
+  width:64px;padding:2px 0;}
+.p-name:focus{outline:none;border-color:var(--brass);}
+select.p-role{background:var(--panel-2);border:1px solid var(--line-strong);color:var(--text-dim);
+  font-family:'IBM Plex Mono';font-size:9px;border-radius:5px;padding:3px 2px;width:58px;}
+input.cell{width:32px;height:28px;border-radius:6px;border:1px solid transparent;text-align:center;
+  font-family:'IBM Plex Mono';font-size:11px;font-weight:500;color:var(--text);
+  background:var(--panel-2);transition:background .2s,color .2s;}
+input.cell::-webkit-inner-spin-button{-webkit-appearance:none;}
+input.cell:focus{outline:none;border-color:var(--brass);}
+input.cell.g{background:rgba(111,162,135,0.22);color:var(--green);}
+input.cell.a{background:rgba(217,164,65,0.26);color:var(--amber);}
+input.cell.c{background:rgba(193,97,76,0.30);color:var(--clay);}
+td.total{padding-left:6px;}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-family:'IBM Plex Mono';
+  padding:3px 8px 3px 6px;border-radius:20px;font-weight:500;white-space:nowrap;}
+.pill .dot{width:5px;height:5px;border-radius:50%;}
+.pill.green{background:rgba(111,162,135,0.14);color:var(--green);}
+.pill.green .dot{background:var(--green);}
+.pill.amber{background:rgba(217,164,65,0.14);color:var(--amber);}
+.pill.amber .dot{background:var(--amber);}
+.pill.clay{background:rgba(193,97,76,0.14);color:var(--clay);}
+.pill.clay .dot{background:var(--clay);}
+.p-remove{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:13px;
+  padding:2px 4px;}
+.p-remove:hover{color:var(--clay);}
+
+.add-row{width:100%;border:1px dashed var(--line-strong);background:transparent;
+  color:var(--text-dim);border-radius:9px;padding:10px 0;font-size:12px;font-family:'Inter';
+  cursor:pointer;margin-top:12px;font-weight:500;}
+.add-row:hover{border-color:var(--brass);color:var(--paper);}
+
+.threshold-note{font-size:10.5px;color:var(--text-faint);margin-top:10px;line-height:1.5;}
+
+.feed{max-height:220px;overflow-y:auto;}
+.feed-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);}
+.feed-item:last-child{border-bottom:none;}
+.feed-time{font-family:'IBM Plex Mono';font-size:10px;color:var(--text-faint);min-width:48px;
+  padding-top:1px;}
+.feed-text{font-size:12.5px;color:var(--text-dim);line-height:1.4;}
+.feed-text b{color:var(--paper);font-weight:600;}
+.feed-empty{font-size:12px;color:var(--text-faint);text-align:center;padding:14px 0;}
+
+.foot-note{font-family:'IBM Plex Mono';font-size:9.5px;color:var(--text-faint);text-align:center;
+  padding:22px 30px 0;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-name">Fika Sync</div>
+      <div class="brand-sub">FUNCTIONAL PROTOTYPE</div>
+    </div>
+    <div class="brand-note">Edit the hours per day — the heatmap, thermometer, and feed recalculate live using the real classification logic (80% / 100% bands).</div>
+  </header>
+
+  <main>
+    <div class="eyebrow">Team status — editable data</div>
+    <h1 class="screen-title">War Room</h1>
+
+    <div class="card">
+      <div class="card-label">Focus thermometer</div>
+      <div class="thermo-wrap">
+        <div class="thermo-num" id="thermo-num">0%</div>
+        <div class="thermo-bar"><div class="thermo-fill" id="thermo-fill" style="width:0%"></div></div>
+      </div>
+      <div class="thermo-caption" id="thermo-caption">Suggested focus hours versus total meeting hours for the week.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Load per person · Mon–Fri <span class="mono" style="font-size:9px">hours</span></div>
+      <div class="table-scroll">
+        <table class="heatmap">
+          <thead>
+            <tr><th>Name</th><th>Role</th><th>M</th><th>T</th><th>W</th><th>T</th><th>F</th><th>Total</th></tr>
+          </thead>
+          <tbody id="team-body"></tbody>
+        </table>
+      </div>
+      <button class="add-row" id="add-person">+ Add person</button>
+      <div class="threshold-note">Weekly threshold by role: IC 15h · Manager 18h · Lead 20h. 🟢 ≤80% · 🟡 ≤100% · 🔴 &gt;100%.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Live activity <span class="mono" style="font-size:9px">generated on edit</span></div>
+      <div class="feed" id="feed"><div class="feed-empty">Edit a cell to generate the first event.</div></div>
+    </div>
+  </main>
+
+  <p class="foot-note">Functional prototype in the browser — no real connection to Cal.com, Google Calendar, or Slack. Data lives only for this session and is lost on reload.</p>
+</div>
+
+<script>
+const THRESHOLDS = { ic: 15, manager: 18, lead: 20 };
+const ROLE_LABEL = { ic: 'IC', manager: 'Manager', lead: 'Lead' };
+
+let people = [
+  { id: 1, name: 'Alex',  role: 'ic',      hours: [2,1,4,2,0] },
+  { id: 2, name: 'Sam',   role: 'manager', hours: [5,6,6,4,2] },
+  { id: 3, name: 'Noa',   role: 'ic',      hours: [1,2,1,0,1] },
+];
+let nextId = 4;
+let prevSeverity = {};
+let feedEvents = [];
+
+function classify(pct){
+  if (pct <= 80) return 'green';
+  if (pct <= 100) return 'amber';
+  return 'clay';
+}
+function severityWord(sev){
+  return sev === 'green' ? 'healthy' : sev === 'amber' ? 'at the limit' : 'overloaded';
+}
+function suggestedFocus(sev){
+  if (sev === 'amber') return 2;
+  if (sev === 'clay') return 4;
+  return 0;
+}
+function nowLabel(){
+  const d = new Date();
+  return d.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+}
+function pushFeed(html){
+  feedEvents.unshift({ time: nowLabel(), html });
+  feedEvents = feedEvents.slice(0, 12);
+}
+
+function render(){
+  const body = document.getElementById('team-body');
+  body.innerHTML = '';
+  let totalHours = 0, totalFocus = 0;
+
+  people.forEach(p => {
+    const weekly = p.hours.reduce((a,b)=>a+b, 0);
+    const threshold = THRESHOLDS[p.role];
+    const pct = threshold ? (weekly/threshold)*100 : 0;
+    const sev = classify(pct);
+    const focus = suggestedFocus(sev);
+    totalHours += weekly;
+    totalFocus += focus;
+
+    if (prevSeverity[p.id] !== undefined && prevSeverity[p.id] !== sev){
+      if (sev === 'clay'){
+        pushFeed(`Focus time suggested for <b>${p.name}</b> (${focus}h) — 🔴 ${pct.toFixed(0)}% of threshold`);
+      } else if (sev === 'amber'){
+        pushFeed(`<b>${p.name}</b> entered the limit zone — 🟡 ${pct.toFixed(0)}% of threshold`);
+      } else if (sev === 'green'){
+        pushFeed(`<b>${p.name}</b> is back in the healthy zone — 🟢 ${pct.toFixed(0)}% of threshold`);
+      }
+    }
+    prevSeverity[p.id] = sev;
+
+    const tr = document.createElement('tr');
+
+    const tdName = document.createElement('td');
+    tdName.className = 'name';
+    const nameInput = document.createElement('input');
+    nameInput.className = 'p-name';
+    nameInput.value = p.name;
+    nameInput.addEventListener('input', e => { p.name = e.target.value || '—'; render(); });
+    tdName.appendChild(nameInput);
+    tr.appendChild(tdName);
+
+    const tdRole = document.createElement('td');
+    const roleSel = document.createElement('select');
+    roleSel.className = 'p-role';
+    Object.keys(THRESHOLDS).forEach(r => {
+      const opt = document.createElement('option');
+      opt.value = r; opt.textContent = ROLE_LABEL[r];
+      if (r === p.role) opt.selected = true;
+      roleSel.appendChild(opt);
+    });
+    roleSel.addEventListener('change', e => { p.role = e.target.value; render(); });
+    tdRole.appendChild(roleSel);
+    tr.appendChild(tdRole);
+
+    const dayThreshold = threshold / 5;
+    p.hours.forEach((h, i) => {
+      const td = document.createElement('td');
+      const input = document.createElement('input');
+      input.type = 'number'; input.min = '0'; input.max = '14';
+      input.className = 'cell ' + classify((h/dayThreshold)*100 || 0)[0];
+      input.value = h;
+      input.addEventListener('input', e => {
+        p.hours[i] = Math.max(0, Math.min(14, Number(e.target.value) || 0));
+        render();
+      });
+      td.appendChild(input);
+      tr.appendChild(td);
+    });
+
+    const tdTotal = document.createElement('td');
+    tdTotal.className = 'total';
+    tdTotal.innerHTML = `<span class="pill ${sev==='clay'?'clay':sev}"><span class="dot"></span>${weekly}h</span>`;
+    tr.appendChild(tdTotal);
+
+    const tdRemove = document.createElement('td');
+    const rm = document.createElement('button');
+    rm.className = 'p-remove'; rm.textContent = '✕';
+    rm.addEventListener('click', () => {
+      people = people.filter(x => x.id !== p.id);
+      delete prevSeverity[p.id];
+      render();
+    });
+    tdRemove.appendChild(rm);
+    tr.appendChild(tdRemove);
+
+    body.appendChild(tr);
+  });
+
+  const thermoPct = totalHours > 0 ? Math.min(100, Math.round((totalFocus / totalHours) * 100)) : 0;
+  document.getElementById('thermo-num').textContent = thermoPct + '%';
+  document.getElementById('thermo-fill').style.width = thermoPct + '%';
+  document.getElementById('thermo-caption').textContent =
+    totalHours > 0
+      ? `${totalFocus}h of suggested focus versus ${totalHours}h total meeting hours this week.`
+      : 'Add hours to calculate the thermometer.';
+
+  const feedEl = document.getElementById('feed');
+  feedEl.innerHTML = feedEvents.length
+    ? feedEvents.map(ev => `<div class="feed-item"><div class="feed-time mono">${ev.time}</div><div class="feed-text">${ev.html}</div></div>`).join('')
+    : '<div class="feed-empty">Edit a cell to generate the first event.</div>';
+}
+
+document.getElementById('add-person').addEventListener('click', () => {
+  people.push({ id: nextId++, name: 'New person', role: 'ic', hours: [0,0,0,0,0] });
+  render();
+});
+
+// Initial severity calculation without generating feed events (base state)
+people.forEach(p => {
+  const weekly = p.hours.reduce((a,b)=>a+b,0);
+  const pct = (weekly / THRESHOLDS[p.role]) * 100;
+  prevSeverity[p.id] = classify(pct);
+});
+render();
+</script>
+</body>
+</html>

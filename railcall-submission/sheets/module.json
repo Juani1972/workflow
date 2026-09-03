@@ -1,0 +1,51 @@
+{
+  "slug": "juani1972/sheets",
+  "version": "0.1.0",
+  "description": "Read and append rows to a Google Sheet — a simple audit log or export target for any workflow.",
+  "credentials_note": "Read via __rc_helpers__['vault_get']('sheets') at call time, expected shape {\"access_token\": \"...\"} (falls back to \"api_key\") — set up in Studio -> Integrations -> sheets. Static access token, no refresh (see README known limitations). Never read from os.environ.",
+  "requires": {
+    "network": ["sheets.googleapis.com"],
+    "subprocess": false,
+    "filesystem_writes": []
+  },
+  "commands": [
+    {
+      "name": "read_values",
+      "description": "Read a range of cells from a spreadsheet.",
+      "requires": ["sheets"],
+      "input_schema": {
+        "spreadsheet_id": {
+          "type": "string",
+          "required": true,
+          "help": "The long ID in the sheet's URL, between /d/ and /edit."
+        },
+        "range": {
+          "type": "string",
+          "required": true,
+          "help": "A1 notation, e.g. Sheet1!A1:D20."
+        }
+      },
+      "side_effects": "none"
+    },
+    {
+      "name": "append_row",
+      "description": "Append a row after the last row of a detected table.",
+      "requires": ["sheets"],
+      "input_schema": {
+        "spreadsheet_id": { "type": "string", "required": true },
+        "range": {
+          "type": "string",
+          "required": true,
+          "help": "A1 notation of the table to append after, e.g. Sheet1!A:D."
+        },
+        "values": {
+          "type": "array",
+          "required": true,
+          "help": "The row values in order, e.g. [\"2026-09-01\", \"ana\", \"22.0\", \"red\"]."
+        }
+      },
+      "side_effects": "external"
+    }
+  ],
+  "license_required": false
+}

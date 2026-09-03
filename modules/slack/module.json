@@ -1,0 +1,60 @@
+{
+  "slug": "your-handle/slack",
+  "version": "0.1.0",
+  "description": "Slack messaging: channel messages, messages with action buttons (Block Kit), and direct messages.",
+  "auth": { "type": "oauth2", "provider": "slack" },
+  "commands": [
+    {
+      "name": "post_message",
+      "description": "Publishes a text message to a channel (chat.postMessage).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "channel": { "type": "string", "description": "Name (#channel) or ID (C0123...) of the channel." },
+          "text": { "type": "string" }
+        },
+        "required": ["channel", "text"]
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "post_message_with_buttons",
+      "description": "Publishes a message with action buttons (Block Kit actions block), e.g. Approve/Modify/Reject.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "channel": { "type": "string" },
+          "text": { "type": "string" },
+          "buttons": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": { "type": "string" },
+                "action_id": { "type": "string" },
+                "style": { "type": "string", "enum": ["primary", "danger"] }
+              },
+              "required": ["label", "action_id"]
+            }
+          }
+        },
+        "required": ["channel", "text", "buttons"]
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "post_dm",
+      "description": "Sends a direct message to a user. Opens the DM channel via conversations.open before posting (the pattern Slack recommends).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "user_id": { "type": "string", "description": "Slack user ID (U0123...), not an email." },
+          "text": { "type": "string" }
+        },
+        "required": ["user_id", "text"]
+      },
+      "side_effects": "external"
+    }
+  ],
+  "license_required": false
+}

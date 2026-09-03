@@ -1,0 +1,36 @@
+{
+  "_readme": "Reviewed against the real docs (railcall.ai/docs/marketplace-developer/workflows, read live on 2026-08-30). Confirmed there: (1) the prose-described format of transform/effect nodes with action_id + for_each fan-out, and a capabilities block with providers + max_spend_cents -- matches what was already here. (2) The module dependency declaration is literally written as 'module_dependency: {\"id\": \"you/your-module\", \"minimum_version\": \"0.2.0\"}' -- singular, not 'module_dependencies'. This file already uses the singular key with an array of 3 objects (one per module this workflow depends on), which is the most reasonable reading of the text given there's no complete JSON example with more than one dependency. What the docs STILL don't show: a complete reference engine_spec.json (it mentions 'dave/retainer-billing-run' as the real marketplace example, but doesn't reproduce its content), nor workflow.csv's exact column schema. Before publishing: run 'railcall build workflow.csv' locally and adjust against the real error if there is one -- not against this assumption.",
+  "workflow_id": "juani1972/protect-focus-time",
+  "version": "0.1.0",
+  "module_dependency": [
+    { "id": "juani1972/gcal", "minimum_version": "0.1.0" },
+    { "id": "juani1972/calcom-pro", "minimum_version": "0.1.0" },
+    { "id": "juani1972/slack", "minimum_version": "0.1.0" }
+  ],
+  "capabilities": {
+    "providers": ["gcal", "calcom-pro", "slack"],
+    "max_spend_cents": 0
+  },
+  "context_form": {
+    "_readme": "The inputs Studio would ask for before running the workflow (per the docs: 'a Run button in the Workflows tab with an auto-generated per-run context form'). Field names chosen here, not confirmed.",
+    "team_members": {
+      "type": "array",
+      "required": true,
+      "help": "List of the team's Google Calendar emails, one per person."
+    },
+    "slack_channel": {
+      "type": "string",
+      "required": true,
+      "help": "Channel to publish the weekly summary to, e.g. #fika-sync."
+    },
+    "focus_time_event_type_id": {
+      "type": "integer",
+      "required": true,
+      "help": "ID of the 'Focus Time' event type in Cal.com (create it once by hand)."
+    },
+    "focus_time_duration_minutes": {
+      "type": "integer",
+      "default": 60
+    }
+  }
+}

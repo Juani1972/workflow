@@ -1,0 +1,64 @@
+{
+  "_readme": "Reconstructed format, same as calcom-pro and team-health-analyzer. This module makes real network calls to the Google Calendar API and has NOT been tested against a real account yet. The only part 100% trustworthy without external validation is _first_free_slot in actions.py, which is pure logic and is tested directly without mocks. Validate the rest with 'railcall module validate module_spec.json' and a Google sandbox account before publishing.",
+  "module_id": "gcal",
+  "version": "0.1.0",
+  "display_name": "Google Calendar",
+  "description": "Integrates Fika Sync with the Google Calendar v3 API: reads ad-hoc events, mirrors focus-time blocks, and finds the next free slot. Requires GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET and GOOGLE_REFRESH_TOKEN.",
+  "language": "python",
+  "entrypoint": "actions.py",
+  "requires_credentials": true,
+  "required_env_vars": ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "GOOGLE_REFRESH_TOKEN"],
+  "external_calls": true,
+  "external_calls_validated_against_real_account": false,
+  "dependencies": ["requests>=2.31,<3"],
+  "actions": [
+    {
+      "name": "list_events",
+      "function": "list_events",
+      "inputs": ["calendar_id", "time_min_iso", "time_max_iso", "single_events"],
+      "output": "events",
+      "gcal_endpoint": "GET /calendars/{calendarId}/events"
+    },
+    {
+      "name": "create_event",
+      "function": "create_event",
+      "inputs": ["calendar_id", "summary", "start_iso", "end_iso", "timezone", "description"],
+      "output": "event",
+      "gcal_endpoint": "POST /calendars/{calendarId}/events"
+    },
+    {
+      "name": "update_event",
+      "function": "update_event",
+      "inputs": ["calendar_id", "event_id", "updates"],
+      "output": "event",
+      "gcal_endpoint": "PATCH /calendars/{calendarId}/events/{eventId}"
+    },
+    {
+      "name": "delete_event",
+      "function": "delete_event",
+      "inputs": ["calendar_id", "event_id"],
+      "output": "empty_dict",
+      "gcal_endpoint": "DELETE /calendars/{calendarId}/events/{eventId}",
+      "note": "Not used by any workflow.csv node yet. Added to be able to automatically clean up test events in tests/test_integration.py."
+    },
+    {
+      "name": "find_next_free_slot",
+      "function": "find_next_free_slot",
+      "inputs": ["calendar_id", "duration_minutes", "search_start_iso", "search_end_iso", "timezone"],
+      "output": "free_slot_or_null",
+      "gcal_endpoint": "POST /freeBusy",
+      "note": "The free-slot calculation itself (_first_free_slot) is pure logic, tested without mocks."
+    }
+  ],
+  "tests": {
+    "framework": "pytest",
+    "unit": {
+      "path": "tests/test_actions.py",
+      "status_as_of_2026_08_29": "13/13 passing (8 with the HTTP layer mocked, 5 pure logic without mocks)"
+    },
+    "integration": {
+      "path": "tests/test_integration.py",
+      "status": "written, not run yet — require real credentials, see VALIDATION.md at the build root"
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "_readme": "The exact format of this manifest (fields, names, 'actions' structure) is a reasoned reconstruction based on RailCall's prose documentation about the Module Marketplace, not a published official module_spec.json example. Validate with 'railcall module validate module_spec.json' before publishing, and adjust field names if the validator expects something different.",
+  "module_id": "team-health-analyzer",
+  "version": "0.1.0",
+  "display_name": "Team Health Analyzer",
+  "description": "Analyzes a team's meeting load and classifies its health (green/yellow/red) from data already obtained from Cal.com and Google Calendar. Makes no external calls: pure logic, no dependencies.",
+  "language": "python",
+  "entrypoint": "actions.py",
+  "requires_credentials": false,
+  "external_calls": false,
+  "actions": [
+    {
+      "name": "calculate_meeting_load",
+      "function": "calculate_meeting_load",
+      "inputs": ["calcom_bookings", "gcal_adhoc_events"],
+      "output": "hours_by_person"
+    },
+    {
+      "name": "classify_team_health",
+      "function": "classify_team_health",
+      "inputs": ["hours_by_person", "thresholds"],
+      "output": "health_status"
+    },
+    {
+      "name": "rebalance_queue",
+      "function": "rebalance_queue",
+      "inputs": ["queue", "health_status"],
+      "output": "rebalanced_queue"
+    },
+    {
+      "name": "update_threshold",
+      "function": "update_threshold",
+      "inputs": ["current_thresholds", "person", "new_threshold_field", "new_value"],
+      "output": "updated_thresholds",
+      "note": "Should only be called after slack.verify_slack_signature confirms the click is authentic."
+    },
+    {
+      "name": "summarize_team_report",
+      "function": "summarize_team_report",
+      "inputs": ["hours_by_person", "health_status", "threshold_changes"],
+      "output": "report_text"
+    }
+  ],
+  "tests": {
+    "framework": "pytest",
+    "path": "tests/test_actions.py",
+    "status_as_of_2026_08_29": "8/8 passing"
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "_readme": "The exact format of this file (field names, 'providers' structure, retry policy) is a reasoned reconstruction based on RailCall's prose documentation at /docs/marketplace-developer/workflows, not a published complete file example. Before relying on this in a real demo, validate with 'railcall build --help' and 'railcall audit workflow.csv', and adjust field names if the compiler expects something different.",
+  "workflow_id": "fika-sync",
+  "version": "0.2.0",
+  "airlock": {
+    "mode": "preview_approve_execute",
+    "dry_run_default": true,
+    "requires_signed_receipt": true
+  },
+  "providers": [
+    {
+      "name": "calcom",
+      "module": "calcom-pro",
+      "auth": "oauth_or_api_key",
+      "capabilities": ["list_bookings", "create_booking", "update_booking"],
+      "validated_against_real_account": false,
+      "note": "update_booking has an endpoint unconfirmed against the official documentation (see the warning in modules/calcom-pro/actions.py). list_bookings and create_booking each require a different cal-api-version header."
+    },
+    {
+      "name": "google_calendar",
+      "module": "gcal",
+      "auth": "oauth",
+      "capabilities": ["list_events", "create_event", "update_event", "delete_event", "find_next_free_slot"],
+      "validated_against_real_account": false
+    },
+    {
+      "name": "slack",
+      "module": "slack",
+      "auth": "oauth",
+      "capabilities": ["post_message", "slash_command", "interactive_button"],
+      "validated_against_real_account": false,
+      "note": "post_message is the only one that calls the real API. Signature verification (verify_slack_signature) and slash_command/interactive_button parsing are pure logic, with no network call."
+    },
+    {
+      "name": "sheets",
+      "module": "sheets",
+      "auth": "oauth",
+      "capabilities": ["append_row"],
+      "validated_against_real_account": false,
+      "added_in": "0.2.0"
+    },
+    {
+      "name": "zoom",
+      "module": "zoom",
+      "auth": "oauth_or_api_key",
+      "capabilities": ["get_call_duration"],
+      "validated_against_real_account": false,
+      "added_in": "0.2.0"
+    }
+  ],
+  "internal_modules": [
+    {
+      "name": "team-health-analyzer",
+      "external_calls": false,
+      "requires_credentials": false,
+      "tests_status_as_of_2026_08_29": "8/8 passing"
+    }
+  ],
+  "spend_limits": {
+    "max_spend_cents": 500,
+    "enforced_at": "runtime",
+    "note": "Enforced at runtime, not just in the plan."
+  },
+  "retry_policy": {
+    "max_retries": 3,
+    "backoff": "exponential",
+    "applies_to": ["calcom", "google_calendar", "slack", "sheets", "zoom"]
+  }
+}

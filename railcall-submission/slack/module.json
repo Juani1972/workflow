@@ -1,0 +1,46 @@
+{
+  "slug": "juani1972/slack",
+  "version": "0.1.0",
+  "description": "Post messages to Slack and list channels — the notification half of a team-health or ops workflow.",
+  "credentials_note": "Read via __rc_helpers__['vault_get']('slack') at call time, expected shape {\"bot_token\": \"...\"} (falls back to \"api_key\") — set up in Studio -> Integrations -> slack. Bot tokens don't expire by default. Never read from os.environ.",
+  "requires": {
+    "network": ["slack.com"],
+    "subprocess": false,
+    "filesystem_writes": []
+  },
+  "commands": [
+    {
+      "name": "list_channels",
+      "description": "List channels the bot can see, to find a channel_id by name.",
+      "requires": ["slack"],
+      "input_schema": {
+        "limit": {
+          "type": "integer",
+          "required": false,
+          "default": 100,
+          "help": "Max channels to return (Slack paginates above 100; not followed automatically)."
+        }
+      },
+      "side_effects": "none"
+    },
+    {
+      "name": "post_message",
+      "description": "Post a message to a channel.",
+      "requires": ["slack"],
+      "input_schema": {
+        "channel": {
+          "type": "string",
+          "required": true,
+          "help": "Channel ID (from list_channels) or name, e.g. #fika-sync."
+        },
+        "text": {
+          "type": "string",
+          "required": true,
+          "help": "Message body. Always sent as the fallback text even if you don't use blocks."
+        }
+      },
+      "side_effects": "external"
+    }
+  ],
+  "license_required": false
+}

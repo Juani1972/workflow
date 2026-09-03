@@ -1,0 +1,65 @@
+{
+  "_readme": "Reasoned reconstruction, same convention as fika-sync/engine_spec.json. This workflow chains 5 systems: slack, team-health-analyzer, google_calendar, calcom, sheets. Unlike the original diagnosis ('5 chained integrations, none tested individually'), each provider already has its own module with individual unit tests (see modules/*/README.md) -- what's missing is validating each one against a real account (VALIDATION.md) and, only after that, testing the full chain end to end.",
+  "workflow_id": "onboarding-automator",
+  "version": "0.1.0",
+  "airlock": {
+    "mode": "preview_approve_execute",
+    "dry_run_default": true,
+    "requires_signed_receipt": true
+  },
+  "providers": [
+    {
+      "name": "slack",
+      "module": "slack",
+      "auth": "oauth",
+      "capabilities": ["slash_command", "post_message"],
+      "validated_against_real_account": false
+    },
+    {
+      "name": "google_calendar",
+      "module": "gcal",
+      "auth": "oauth",
+      "capabilities": ["find_next_free_slot", "create_event"],
+      "validated_against_real_account": false
+    },
+    {
+      "name": "calcom",
+      "module": "calcom-pro",
+      "auth": "oauth_or_api_key",
+      "capabilities": ["create_booking"],
+      "validated_against_real_account": false
+    },
+    {
+      "name": "sheets",
+      "module": "sheets",
+      "auth": "oauth",
+      "capabilities": ["append_row"],
+      "validated_against_real_account": false
+    },
+    {
+      "name": "railcall",
+      "module": null,
+      "auth": "n/a",
+      "capabilities": ["write_receipt"],
+      "note": "write_receipt is the same (unconfirmed) capability already used in fika-sync/engine_spec.json."
+    }
+  ],
+  "internal_modules": [
+    {
+      "name": "team-health-analyzer",
+      "external_calls": false,
+      "requires_credentials": false,
+      "note": "rebalance_queue is reused here to pick an onboarding buddy, not just to reassign meetings — same code, different use.",
+      "tests_status_as_of_2026_08_30": "8/8 passing"
+    }
+  ],
+  "spend_limits": {
+    "max_spend_cents": 100,
+    "enforced_at": "runtime"
+  },
+  "retry_policy": {
+    "max_retries": 3,
+    "backoff": "exponential",
+    "applies_to": ["slack", "google_calendar", "calcom", "sheets"]
+  }
+}

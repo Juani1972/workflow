@@ -1,0 +1,347 @@
+{
+  "slug": "your-handle/calcom-pro",
+  "version": "0.1.0",
+  "description": "Full appointment and availability management on Cal.com: events, bookings, availability and sync.",
+  "auth": {
+    "type": "api_key",
+    "env_var": "CALCOM_API_KEY"
+  },
+  "commands": [
+    {
+      "name": "list_events",
+      "description": "Lists events/meetings in a date range, with optional filters by user or type.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "from_date": {
+            "type": "string",
+            "description": "ISO 8601"
+          },
+          "to_date": {
+            "type": "string",
+            "description": "ISO 8601"
+          },
+          "username": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "from_date",
+          "to_date"
+        ]
+      },
+      "side_effects": "none"
+    },
+    {
+      "name": "create_event",
+      "description": "Creates a manual booking against an existing event type. Cal.com v2 requires eventTypeId -- there's no 'free-form' booking without an event type -- and duration is defined by the event type, not a client-supplied 'end' field.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "event_type_id": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string"
+          },
+          "attendee_name": {
+            "type": "string"
+          },
+          "attendee_email": {
+            "type": "string"
+          },
+          "attendee_timezone": {
+            "type": "string",
+            "description": "IANA, e.g. 'Europe/Madrid'"
+          }
+        },
+        "required": [
+          "event_type_id",
+          "start",
+          "attendee_name",
+          "attendee_email",
+          "attendee_timezone"
+        ]
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "update_event",
+      "description": "Reschedules an existing event (changes start/end). Cal.com's v2 API has no generic edit endpoint, so 'title' isn't editable through this path.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "event_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_id"
+        ]
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "delete_event",
+      "description": "Cancels an event/booking (POST /v2/bookings/{uid}/cancel; Cal.com v2 has no DELETE).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "event_id": {
+            "type": "string"
+          },
+          "cancellation_reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_id"
+        ]
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "get_availability",
+      "description": "Returns a user's real free slots for an event type in a range, respecting configured buffers.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "event_type_id": {
+            "type": "string",
+            "description": "Required by Cal.com's GET /v2/slots to resolve the event type."
+          },
+          "from_date": {
+            "type": "string"
+          },
+          "to_date": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "event_type_id",
+          "from_date",
+          "to_date"
+        ]
+      },
+      "side_effects": "none"
+    },
+    {
+      "name": "book_slot",
+      "description": "Books a specific slot, validating it's still available before confirming.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "slot_start": {
+            "type": "string"
+          },
+          "event_type_id": {
+            "type": "string"
+          },
+          "attendee_name": {
+            "type": "string"
+          },
+          "attendee_email": {
+            "type": "string"
+          },
+          "attendee_timezone": {
+            "type": "string",
+            "description": "IANA, e.g. 'Europe/Madrid'"
+          }
+        },
+        "required": [
+          "username",
+          "slot_start",
+          "event_type_id",
+          "attendee_name",
+          "attendee_email",
+          "attendee_timezone"
+        ]
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "protect_focus_time",
+      "description": "Fika Sync business logic (not a native Cal.com endpoint): looks for the first free slot according to time-of-day priority and books it against the event_type_id representing 'focus block' on the user's account. Requires the Cal.com account to have an event type configured for this -- duration is defined by that event type, not this command.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "event_type_id": {
+            "type": "string",
+            "description": "Cal.com event type representing the focus block (with duration already configured: 2h, 4h, etc.)"
+          },
+          "attendee_name": {
+            "type": "string"
+          },
+          "attendee_email": {
+            "type": "string"
+          },
+          "attendee_timezone": {
+            "type": "string"
+          },
+          "from_date": {
+            "type": "string"
+          },
+          "to_date": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "morning",
+              "afternoon",
+              "any"
+            ],
+            "default": "any"
+          }
+        },
+        "required": [
+          "username",
+          "event_type_id",
+          "attendee_name",
+          "attendee_email",
+          "attendee_timezone",
+          "from_date",
+          "to_date"
+        ]
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "get_user_schedule",
+      "description": "Returns a user's configured working schedule (available days/hours).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "username"
+        ]
+      },
+      "side_effects": "none"
+    },
+    {
+      "name": "sync_calendar",
+      "description": "Forces a re-sync of the connected external calendar (Google/Outlook) against Cal.com.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "username"
+        ]
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "get_meeting_load",
+      "description": "Business logic (not a native endpoint): sums meeting hours in a range via GET /v2/bookings and returns total + per-day breakdown. Used by fika-sync's get_calcom_load.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "from_date": {
+            "type": "string"
+          },
+          "to_date": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "from_date",
+          "to_date"
+        ]
+      },
+      "side_effects": "none"
+    },
+    {
+      "name": "get_attendance",
+      "description": "Reads a booking's attendance via GET /v2/bookings/{uid}. Cal.com v2 still has no GET endpoints for attendees (issue calcom/cal.diy#27283), so it's derived from the booking object.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "booking_uid": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "booking_uid"
+        ]
+      },
+      "side_effects": "none"
+    },
+    {
+      "name": "mark_absent",
+      "description": "POST /v2/bookings/{uid}/mark-absent -- marks a no-show for the host and/or attendees.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "booking_uid": {
+            "type": "string"
+          },
+          "host_absent": {
+            "type": "boolean",
+            "default": false
+          },
+          "absent_attendee_emails": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "booking_uid"
+        ]
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "reassign_booking",
+      "description": "POST /v2/bookings/{uid}/reassign/{userId} -- reassigns ONE round-robin booking to another host. Cal.com does NOT offer global queue rebalancing: it has to be done booking by booking.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "booking_uid": {
+            "type": "string"
+          },
+          "target_user_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "booking_uid",
+          "target_user_id"
+        ]
+      },
+      "side_effects": "external"
+    }
+  ],
+  "license_required": false
+}

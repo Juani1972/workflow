@@ -1,0 +1,71 @@
+{
+  "slug": "your-handle/team-health-analyzer",
+  "version": "0.1.0",
+  "description": "Analyzes team health metrics (meeting load, focus time, distribution) from data already collected by other modules (doesn't call external APIs itself).",
+  "auth": { "type": "none" },
+  "commands": [
+    {
+      "name": "analyze_team_health",
+      "description": "Given a list of members with their weekly meeting hours, returns aggregated team metrics.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "members": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "person_id": { "type": "string" },
+                "weekly_meeting_hours": { "type": "number" },
+                "weekly_threshold": { "type": "number" }
+              },
+              "required": ["person_id", "weekly_meeting_hours", "weekly_threshold"]
+            }
+          }
+        },
+        "required": ["members"]
+      },
+      "side_effects": "none"
+    },
+    {
+      "name": "get_individual_metrics",
+      "description": "Returns detail for a person: pct of threshold used, trend relative to the previous week.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "person_id": { "type": "string" },
+          "current_hours": { "type": "number" },
+          "previous_hours": { "type": "number" },
+          "weekly_threshold": { "type": "number" }
+        },
+        "required": ["person_id", "current_hours", "weekly_threshold"]
+      },
+      "side_effects": "none"
+    },
+    {
+      "name": "generate_report",
+      "description": "Generates a Markdown report from already-calculated metrics.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "team_metrics": { "type": "object" }
+        },
+        "required": ["team_metrics"]
+      },
+      "side_effects": "none"
+    },
+    {
+      "name": "suggest_optimizations",
+      "description": "From the metrics, suggests concrete actions (doesn't execute them -- that's done by the workflow using this module).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "team_metrics": { "type": "object" }
+        },
+        "required": ["team_metrics"]
+      },
+      "side_effects": "none"
+    }
+  ],
+  "license_required": false
+}

@@ -1,0 +1,14 @@
+node_id,type,provider,action,depends_on,description
+trigger_calendar_change,trigger,railcall,webhook_calendar_change,,Triggers when a Google Calendar event tagged as Fika Sync focus time is moved or cancelled (RailCall webhook capability NOT confirmed, see README)
+trigger_weekly_debt_check,trigger,railcall,cron_weekly,,Triggers a weekly check of accumulated debt even if there were no calendar changes that week
+trigger_debt_slash_command,trigger,slack,slash_command,,Triggers an on-demand check with /meeting-debt-check
+fetch_event_details,transform,gcal,list_events,trigger_calendar_change,Fetches the event again to confirm whether the focus-time block still exists or was moved/cancelled
+record_debt,transform,meeting-debt-tracker,record_debt,fetch_event_details,Records the focus-time debt if the block was moved or cancelled (pure logic)
+get_debt_balance,transform,meeting-debt-tracker,get_balance,record_debt;trigger_weekly_debt_check;trigger_debt_slash_command,Calculates each affected person's outstanding debt balance
+classify_debt_severity,transform,meeting-debt-tracker,classify_debt_severity,get_debt_balance,Classifies the debt as 🟢/🟡/🔴 based on thresholds
+summarize_debt_report,transform,meeting-debt-tracker,summarize_debt_report,classify_debt_severity,Generates the debt report text
+publish_debt_alert,effect,slack,post_message,summarize_debt_report,Publishes the debt status to Slack
+find_repayment_slot,transform,gcal,find_next_free_slot,classify_debt_severity,Looks for a free slot to give back the lost focus time (only for 🟡/🔴 debt)
+propose_repayment_block,effect,calcom-pro,create_booking,find_repayment_slot,Proposes a new focus-time block as debt repayment
+repay_debt,effect,meeting-debt-tracker,repay_debt,propose_repayment_block,Marks the debt as repaid once the new block is confirmed (pure logic)
+audit_log_entry,effect,railcall,write_receipt,publish_debt_alert;repay_debt,Generates the signed audit receipt for all actions taken

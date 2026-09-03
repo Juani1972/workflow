@@ -1,0 +1,15 @@
+{
+  "_readme": "Dependencies referenced by workflow.csv files that are NOT implemented ON PURPOSE, with the reason. The validator (tools/validate_workflows.py) reports them as a WARNING instead of an ERROR, to be able to distinguish 'reference broken by a typo' from 'piece we know is missing and why'. If they're ever implemented, they should be removed from here.",
+  "your-handle/gworkspace": {
+    "referenced_by": ["workflows/onboarding-automator/workflow.csv"],
+    "node": "trigger_new_member",
+    "reason": "It's an INCOMING webhook (Google Workspace Admin SDK, user_created event), not an outgoing REST client. It requires registering an event subscription, exposing a publicly verifiable endpoint, and validating signed notifications. This is a different pattern from every other module in the repo ('handler.py calls an external API'), and depends on hosting infrastructure that RailCall provides, not the module.",
+    "blocker": "Needs RailCall to first define how it exposes webhook endpoints to modules."
+  },
+  "your-handle/billing": {
+    "referenced_by": ["workflows/budget-guardian/workflow.csv"],
+    "node": "get_usage",
+    "reason": "It's not ONE API: the workflow describes it as 'billing for each provider (OpenAI, Cal.com, Slack)'. Each provider has its own usage/billing API, with different auth, format, and semantics. A single generic 'billing' module would be a made-up abstraction that doesn't correspond to any real service.",
+    "blocker": "Would need to be split into a module per provider (openai-usage, calcom-billing, etc.) or budget-guardian would need to be scoped to a single specific provider."
+  }
+}

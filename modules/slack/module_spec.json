@@ -1,0 +1,59 @@
+{
+  "_readme": "Reconstructed format, same as the other modules. Only post_message makes a real network call and has NOT been tested against a real workspace yet. build_summary_blocks, verify_slack_signature, parse_slash_command and parse_interactive_payload are pure logic, tested without mocks or network, and can be trusted without external validation. Validate post_message with 'railcall module validate module_spec.json' and a test Slack workspace before publishing.",
+  "module_id": "slack",
+  "version": "0.1.0",
+  "display_name": "Slack",
+  "description": "Publishes Fika Sync's weekly/daily summary to Slack with interactive buttons, and verifies/parses incoming /fika-check requests and clicks on 'Adjust my threshold'. Requires SLACK_BOT_TOKEN and SLACK_SIGNING_SECRET.",
+  "language": "python",
+  "entrypoint": "actions.py",
+  "requires_credentials": true,
+  "required_env_vars": ["SLACK_BOT_TOKEN", "SLACK_SIGNING_SECRET"],
+  "external_calls": true,
+  "external_calls_validated_against_real_account": false,
+  "dependencies": ["requests>=2.31,<3"],
+  "actions": [
+    {
+      "name": "post_message",
+      "function": "post_message",
+      "inputs": ["channel", "text", "blocks"],
+      "output": "slack_response",
+      "slack_endpoint": "POST chat.postMessage",
+      "external_call": true,
+      "validated_against_real_workspace": false
+    },
+    {
+      "name": "build_summary_blocks",
+      "function": "build_summary_blocks",
+      "inputs": ["report_text", "people"],
+      "output": "block_kit_blocks",
+      "external_call": false
+    },
+    {
+      "name": "verify_slack_signature",
+      "function": "verify_slack_signature",
+      "inputs": ["signing_secret", "timestamp", "raw_body", "signature", "current_time"],
+      "output": "is_valid_boolean",
+      "external_call": false,
+      "note": "Critical security piece: without this, anyone could forge a click on 'Adjust my threshold' or a /fika-check."
+    },
+    {
+      "name": "parse_slash_command",
+      "function": "parse_slash_command",
+      "inputs": ["raw_body"],
+      "output": "command_fields",
+      "external_call": false
+    },
+    {
+      "name": "parse_interactive_payload",
+      "function": "parse_interactive_payload",
+      "inputs": ["raw_body"],
+      "output": "interaction_fields",
+      "external_call": false
+    }
+  ],
+  "tests": {
+    "framework": "pytest",
+    "path": "tests/test_actions.py",
+    "status_as_of_2026_08_29": "16/16 passing (3 with the HTTP layer mocked, 13 pure logic without mocks)"
+  }
+}

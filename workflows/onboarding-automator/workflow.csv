@@ -1,0 +1,10 @@
+node_id,type,provider,action,depends_on,description
+trigger_onboard_command,trigger,slack,slash_command,,Triggers with /onboard-new-hire "name" "email" "start_date" — manual kickoff, not automatic from an HRIS (see README)
+parse_new_hire_details,transform,slack,parse_slash_command,trigger_onboard_command,Extracts name/email/date from the Slack command
+assign_buddy,transform,team-health-analyzer,rebalance_queue,parse_new_hire_details,Picks an onboarding buddy by taking the first person from the rebalanced round-robin queue (avoids assigning someone already overloaded)
+get_buddy_availability,transform,gcal,find_next_free_slot,assign_buddy,Looks for the next free slot on the assigned buddy's calendar
+book_welcome_meeting,effect,calcom-pro,create_booking,get_buddy_availability,Schedules the welcome meeting between the buddy and the new hire
+mirror_welcome_meeting_gcal,effect,gcal,create_event,book_welcome_meeting,Mirrors the welcome meeting onto Google Calendar
+post_welcome_message,effect,slack,post_message,mirror_welcome_meeting_gcal,Posts a welcome message to the team channel, mentioning the assigned buddy
+log_onboarding_checklist,effect,sheets,append_row,post_welcome_message,Appends a row to the shared onboarding checklist (name, buddy, date, status)
+audit_log_entry,effect,railcall,write_receipt,log_onboarding_checklist,Generates the signed audit receipt for all actions taken

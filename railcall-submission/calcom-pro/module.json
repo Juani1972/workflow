@@ -1,0 +1,191 @@
+{
+  "slug": "juani1972/calcom-pro",
+  "version": "0.2.0",
+  "description": "Read, book, reschedule, cancel, and check availability on Cal.com — plus protect_focus_time, which auto-books a real deep-work block, and get_meeting_load, which summarizes someone's booked hours for the week.",
+  "credentials_note": "Read via __rc_helpers__['vault_get']('calcom') at call time, expected shape {\"api_key\": \"...\"} — set up in Studio -> Integrations -> calcom. Never read from os.environ.",
+  "requires": {
+    "network": ["api.cal.com"],
+    "subprocess": false,
+    "filesystem_writes": []
+  },
+  "commands": [
+    {
+      "name": "list_bookings",
+      "description": "List bookings from Cal.com, optionally filtered by status.",
+      "requires": ["calcom"],
+      "input_schema": {
+        "status": {
+          "type": "string",
+          "required": false,
+          "help": "Filter by status: upcoming, past, cancelled. Omit for all.",
+          "options": ["upcoming", "past", "cancelled"]
+        },
+        "cursor": {
+          "type": "string",
+          "required": false,
+          "help": "Pagination cursor returned by a previous call."
+        }
+      },
+      "side_effects": "none"
+    },
+    {
+      "name": "get_booking",
+      "description": "Fetch a single booking by its uid.",
+      "requires": ["calcom"],
+      "input_schema": {
+        "booking_uid": {
+          "type": "string",
+          "required": true,
+          "help": "The uid of the booking to fetch (not the numeric id)."
+        }
+      },
+      "side_effects": "none"
+    },
+    {
+      "name": "get_availability",
+      "description": "Get available time slots for an event type within a date range.",
+      "requires": ["calcom"],
+      "input_schema": {
+        "event_type_id": {
+          "type": "integer",
+          "required": true,
+          "help": "Cal.com event type ID to check availability for."
+        },
+        "start_date": {
+          "type": "string",
+          "required": true,
+          "help": "Start of the search window, e.g. 2026-09-01."
+        },
+        "end_date": {
+          "type": "string",
+          "required": true,
+          "help": "End of the search window, e.g. 2026-09-05."
+        },
+        "timezone": {
+          "type": "string",
+          "required": false,
+          "help": "IANA timezone for the returned slot times. Defaults to UTC."
+        }
+      },
+      "side_effects": "none"
+    },
+    {
+      "name": "create_booking",
+      "description": "Create a new booking in Cal.com — e.g. to block focus time as a real meeting.",
+      "requires": ["calcom"],
+      "input_schema": {
+        "event_type_id": {
+          "type": "integer",
+          "required": true,
+          "help": "Cal.com event type ID to book (create one in Cal.com first, e.g. 'Focus Time')."
+        },
+        "start_iso": {
+          "type": "string",
+          "required": true,
+          "help": "Start time in ISO 8601, e.g. 2026-09-01T09:00:00Z."
+        },
+        "attendee_name": {
+          "type": "string",
+          "required": true
+        },
+        "attendee_email": {
+          "type": "string",
+          "required": true,
+          "help": "Identifies whose calendar this books into."
+        },
+        "attendee_timezone": {
+          "type": "string",
+          "required": true,
+          "help": "IANA timezone, e.g. America/Argentina/Buenos_Aires."
+        },
+        "length_in_minutes": {
+          "type": "integer",
+          "required": false,
+          "help": "Overrides the event type's default duration."
+        }
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "reschedule_booking",
+      "description": "Move an existing booking to a new start time.",
+      "requires": ["calcom"],
+      "input_schema": {
+        "booking_uid": {
+          "type": "string",
+          "required": true,
+          "help": "The uid of the booking to reschedule (not the numeric id)."
+        },
+        "new_start_iso": {
+          "type": "string",
+          "required": true,
+          "help": "New start time in ISO 8601."
+        },
+        "reason": {
+          "type": "string",
+          "required": false,
+          "help": "Shown to the attendee in the reschedule notification."
+        }
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "cancel_booking",
+      "description": "Cancel an existing booking.",
+      "requires": ["calcom"],
+      "input_schema": {
+        "booking_uid": {
+          "type": "string",
+          "required": true,
+          "help": "The uid of the booking to cancel."
+        },
+        "reason": {
+          "type": "string",
+          "required": false,
+          "help": "Cancellation reason shown to the attendee."
+        }
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "protect_focus_time",
+      "description": "Find the earliest free slot for a focus-time event type in a search window and book it for real — so deep work shows up on the calendar as an actual meeting other bookings have to route around, not a suggestion someone can ignore.",
+      "requires": ["calcom"],
+      "input_schema": {
+        "event_type_id": {
+          "type": "integer",
+          "required": true,
+          "help": "Cal.com event type ID configured as the person's 'Focus Time' block."
+        },
+        "start_date": {
+          "type": "string",
+          "required": true,
+          "help": "Start of the search window, e.g. 2026-09-01."
+        },
+        "end_date": {
+          "type": "string",
+          "required": true,
+          "help": "End of the search window, e.g. 2026-09-05."
+        },
+        "attendee_name": { "type": "string", "required": true },
+        "attendee_email": { "type": "string", "required": true },
+        "attendee_timezone": { "type": "string", "required": true }
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "get_meeting_load",
+      "description": "Summarize how many hours of upcoming bookings someone has, from already-fetched booking data — pure calculation, no extra network call.",
+      "requires": [],
+      "input_schema": {
+        "bookings": {
+          "type": "array",
+          "required": true,
+          "help": "The 'bookings' array as returned by list_bookings."
+        }
+      },
+      "side_effects": "none"
+    }
+  ],
+  "license_required": false
+}

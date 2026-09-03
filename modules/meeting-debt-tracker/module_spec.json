@@ -1,0 +1,49 @@
+{
+  "_readme": "Reconstructed format, same convention as team-health-analyzer. No external dependencies, no network calls.",
+  "module_id": "meeting-debt-tracker",
+  "version": "0.1.0",
+  "display_name": "Meeting Debt Tracker",
+  "description": "Tracks how much protected focus time is owed to each person when a higher-priority meeting overrides it. Pure logic, no external dependencies.",
+  "language": "python",
+  "entrypoint": "actions.py",
+  "requires_credentials": false,
+  "external_calls": false,
+  "actions": [
+    {
+      "name": "record_debt",
+      "function": "record_debt",
+      "inputs": ["ledger", "person", "minutes", "reason", "created_at", "entry_id"],
+      "output": "updated_ledger"
+    },
+    {
+      "name": "repay_debt",
+      "function": "repay_debt",
+      "inputs": ["ledger", "person", "minutes"],
+      "output": "updated_ledger",
+      "note": "FIFO, never over-repays."
+    },
+    {
+      "name": "get_balance",
+      "function": "get_balance",
+      "inputs": ["ledger", "person"],
+      "output": "balance_minutes"
+    },
+    {
+      "name": "classify_debt_severity",
+      "function": "classify_debt_severity",
+      "inputs": ["balance_minutes", "thresholds"],
+      "output": "severity"
+    },
+    {
+      "name": "summarize_debt_report",
+      "function": "summarize_debt_report",
+      "inputs": ["ledger", "thresholds"],
+      "output": "report_text"
+    }
+  ],
+  "tests": {
+    "framework": "pytest",
+    "path": "tests/test_actions.py",
+    "status_as_of_2026_08_30": "11/11 passing"
+  }
+}

@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fika Sync</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand__mark">☕</span>
+    <span class="brand__name">Fika&nbsp;Sync</span>
+  </div>
+  <div class="status-badges" id="status-badges" aria-live="polite"></div>
+</header>
+
+<nav class="tabs" id="tabs" role="tablist" aria-label="Fika Sync sections">
+  <button class="tab" type="button" role="tab" data-tab-target="resumen" aria-selected="true" aria-controls="panel-resumen" id="tab-btn-resumen">
+    <span class="tab__icon" aria-hidden="true">🏠</span><span class="tab__label">Overview</span>
+  </button>
+  <button class="tab" type="button" role="tab" data-tab-target="equipo" aria-selected="false" aria-controls="panel-equipo" id="tab-btn-equipo">
+    <span class="tab__icon" aria-hidden="true">👥</span><span class="tab__label">Team</span>
+  </button>
+  <button class="tab" type="button" role="tab" data-tab-target="conexiones" aria-selected="false" aria-controls="panel-conexiones" id="tab-btn-conexiones">
+    <span class="tab__icon" aria-hidden="true">🔌</span><span class="tab__label">Connections</span>
+  </button>
+  <button class="tab" type="button" role="tab" data-tab-target="notificaciones" aria-selected="false" aria-controls="panel-notificaciones" id="tab-btn-notificaciones">
+    <span class="tab__icon" aria-hidden="true">🔔</span><span class="tab__label">Notifications</span>
+  </button>
+  <button class="tab" type="button" role="tab" data-tab-target="workflows" aria-selected="false" aria-controls="panel-workflows" id="tab-btn-workflows">
+    <span class="tab__icon" aria-hidden="true">🧩</span><span class="tab__label">Workflows</span>
+  </button>
+  <button class="tab" type="button" role="tab" data-tab-target="registro" aria-selected="false" aria-controls="panel-registro" id="tab-btn-registro">
+    <span class="tab__icon" aria-hidden="true">🧾</span><span class="tab__label">Log</span>
+  </button>
+</nav>
+
+<!-- ============================= OVERVIEW ============================= -->
+<div class="tab-panel" id="panel-resumen" data-tab="resumen" role="tabpanel" aria-labelledby="tab-btn-resumen">
+
+  <section class="hero">
+    <h1 class="hero__headline" id="hero-headline">Loading team status…</h1>
+    <p class="hero__sub" id="hero-sub"></p>
+  </section>
+
+  <section class="control-strip">
+    <button class="btn btn--primary" id="sync-btn" type="button">Sync now</button>
+    <span class="control-strip__hint" id="sync-hint"></span>
+  </section>
+
+  <main class="deck" id="ticket-deck" aria-label="Per-person break cards">
+    <p class="deck__loading">Dealing out this week's cards…</p>
+  </main>
+
+</div>
+
+<!-- ============================== TEAM ============================== -->
+<div class="tab-panel" id="panel-equipo" data-tab="equipo" role="tabpanel" aria-labelledby="tab-btn-equipo" hidden>
+
+  <section class="team-manager" aria-label="Team management">
+    <div class="team-manager__header">
+      <h2 class="team-manager__title">Team</h2>
+      <button class="btn btn--ghost" id="add-person-btn" type="button">+ Add person</button>
+    </div>
+    <p class="team-manager__hint">
+      Each person connects <strong>their own</strong> Cal.com and Google
+      Calendar from their row below — one person's token can't read
+      another person's calendar or bookings.
+    </p>
+    <div class="team-manager__list" id="team-manager-list">
+      <p class="team-manager__loading">Loading team…</p>
+    </div>
+    <form class="team-manager__form" id="add-person-form" hidden>
+      <h3>Add person</h3>
+      <label>Name
+        <input type="text" id="new-person-name" placeholder="e.g. flor" required>
+      </label>
+      <label>Cal.com username
+        <input type="text" id="new-person-calcom" placeholder="flor.dev">
+      </label>
+      <label>Google Calendar email
+        <input type="email" id="new-person-gcal" placeholder="flor@example.com">
+      </label>
+      <label>Slack user ID
+        <input type="text" id="new-person-slack" placeholder="U0000005">
+      </label>
+      <div class="team-manager__form-row">
+        <label>🟡 threshold (h)
+          <input type="number" step="0.5" min="0" id="new-person-yellow" value="15">
+        </label>
+        <label>🔴 threshold (h)
+          <input type="number" step="0.5" min="0" id="new-person-red" value="20">
+        </label>
+      </div>
+      <div class="team-manager__form-actions">
+        <button class="btn btn--primary" type="submit">Save</button>
+        <button class="btn btn--ghost" type="button" id="cancel-add-person">Cancel</button>
+      </div>
+      <p class="team-manager__form-error" id="add-person-error" aria-live="polite"></p>
+    </form>
+  </section>
+
+</div>
+
+<!-- ============================ CONNECTIONS ============================ -->
+<div class="tab-panel" id="panel-conexiones" data-tab="conexiones" role="tabpanel" aria-labelledby="tab-btn-conexiones" hidden>
+
+  <section class="app-config" aria-label="App configuration (admin)">
+    <h2 class="app-config__title">App configuration</h2>
+    <p class="app-config__hint">
+      Whoever administers this installation does this <strong>once</strong>
+      (the "Client ID/Secret" that identifies Fika Sync to Google and
+      Slack) — it's not something every team member needs to touch.
+      After saving here, the "Connect" buttons below and on the Team
+      tab work for everyone, without editing any file or restarting
+      the server.
+    </p>
+    <div class="app-config__list" id="app-config-list">
+      <p class="app-config__loading">Checking configuration…</p>
+    </div>
+  </section>
+
+  <section class="connections" aria-label="Provider connections">
+    <h2 class="connections__title">Connections</h2>
+    <p class="connections__hint">
+      This is the app-level configuration (Slack, and Cal.com/Google
+      as a fallback if nobody connected their own). For <strong>each
+      person</strong> to connect their own Cal.com or Google Calendar,
+      go to the <strong>Team</strong> tab → their row.
+    </p>
+    <div class="connections__list" id="connections-list">
+      <p class="connections__loading">Checking connections…</p>
+    </div>
+  </section>
+
+</div>
+
+<!-- ========================== NOTIFICATIONS ========================== -->
+<div class="tab-panel" id="panel-notificaciones" data-tab="notificaciones" role="tabpanel" aria-labelledby="tab-btn-notificaciones" hidden>
+
+  <section class="notif-settings" aria-label="Notification settings">
+    <h2 class="notif-settings__title">Notifications</h2>
+    <div class="notif-settings__row">
+      <label>Slack channel for the summary
+        <input type="text" id="notif-slack-channel" placeholder="#fika-sync">
+      </label>
+    </div>
+    <div class="notif-settings__row">
+      <label>Automatic sync
+        <select id="notif-frequency">
+          <option value="0">Manual only (the "Sync now" button)</option>
+          <option value="60">Every 1 hour</option>
+          <option value="360">Every 6 hours</option>
+          <option value="1440">Once a day</option>
+        </select>
+      </label>
+    </div>
+    <div class="notif-settings__row notif-settings__row--checkbox">
+      <label>
+        <input type="checkbox" id="notif-auto-publish">
+        Publish to Slack automatically after every sync
+      </label>
+    </div>
+    <div class="notif-settings__row notif-settings__row--checkbox">
+      <label>
+        <input type="checkbox" id="notif-personal-dms">
+        Send a private DM to each person in 🟡/🔴 after every sync
+      </label>
+      <p class="notif-settings__subhint">
+        Uses the <code>slack_user_id</code> from each row on the Team
+        tab. Nobody in 🟢 gets sent anything.
+      </p>
+    </div>
+    <div class="notif-settings__actions">
+      <button class="btn btn--ghost" id="save-notif-btn" type="button">Save settings</button>
+      <button class="btn btn--primary" id="publish-now-btn" type="button">Publish summary now</button>
+      <button class="btn btn--primary" id="send-dms-btn" type="button">Send personal DMs now</button>
+    </div>
+    <p class="notif-settings__hint" id="notif-hint" aria-live="polite"></p>
+    <ul class="notif-settings__dm-results" id="dm-results" aria-live="polite"></ul>
+  </section>
+
+</div>
+
+<!-- ============================= WORKFLOWS ============================= -->
+<div class="tab-panel" id="panel-workflows" data-tab="workflows" role="tabpanel" aria-labelledby="tab-btn-workflows" hidden>
+
+  <section class="workflow-settings" aria-label="Workflow configuration">
+    <h2 class="workflow-settings__title">Workflows</h2>
+    <p class="workflow-settings__note">
+      This saves a preference, it doesn't control real execution yet.
+      Only <strong>Fika Sync</strong> actually runs in this dashboard
+      — the other three are <code>workflow.csv</code> definitions
+      meant for RailCall, which isn't part of this app (see
+      <code>workflows/*/README.md</code>).
+    </p>
+    <div class="workflow-settings__list" id="workflow-settings-list">
+      <p class="workflow-settings__loading">Loading…</p>
+    </div>
+  </section>
+
+</div>
+
+<!-- ============================= LOG ============================= -->
+<div class="tab-panel" id="panel-registro" data-tab="registro" role="tabpanel" aria-labelledby="tab-btn-registro" hidden>
+
+  <section class="receipt" aria-label="Sync log">
+    <h2 class="receipt__title">Log</h2>
+    <ol class="receipt__list" id="sync-log"></ol>
+  </section>
+
+</div>
+
+<footer class="footnote">
+  <p>
+    "Connected" data combines Cal.com and Google Calendar with the
+    real logic from <code>team-health-analyzer</code>, but no
+    external integration has been validated against a real account
+    yet — see <code>VALIDATION.md</code>. Without credentials,
+    sample data is shown, persisted in SQLite and always marked as
+    "demo", never mixed with real data.
+  </p>
+  <button class="btn btn--ghost" id="reset-btn" type="button">Reset sample data</button>
+</footer>
+
+<template id="ticket-template">
+  <article class="ticket">
+    <div class="ticket__stub">
+      <span class="ticket__stamp" aria-hidden="true"></span>
+      <span class="ticket__stamp-label"></span>
+    </div>
+    <div class="ticket__perforation" aria-hidden="true"></div>
+    <div class="ticket__body">
+      <div class="ticket__row ticket__row--header">
+        <h3 class="ticket__name"></h3>
+        <span class="ticket__number"></span>
+      </div>
+      <p class="ticket__hours"><span class="ticket__hours-value"></span><span class="ticket__hours-unit">h this week</span></p>
+      <svg class="ticket__sparkline" viewBox="0 0 200 40" preserveAspectRatio="none"></svg>
+      <div class="ticket__thresholds">
+        <label>
+          <span>Yellow from</span>
+          <input type="number" step="0.5" min="0" class="ticket__input" data-field="yellow_hours">
+        </label>
+        <label>
+          <span>Red from</span>
+          <input type="number" step="0.5" min="0" class="ticket__input" data-field="red_hours">
+        </label>
+      </div>
+      <button class="btn btn--small" data-action="save-threshold">Save threshold</button>
+      <p class="ticket__saved" aria-live="polite"></p>
+    </div>
+  </article>
+</template>
+
+<script src="{{ url_for('static', filename='tabs.js') }}"></script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

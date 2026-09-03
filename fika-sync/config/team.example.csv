@@ -1,0 +1,5 @@
+person,calcom_username,gcal_email,slack_user_id,yellow_hours,red_hours
+ana,ana.dev,ana@example.com,U0000001,15,20
+beto,beto.pm,beto@example.com,U0000002,15,20
+caro,caro.design,caro@example.com,U0000003,12,18
+dani,dani.qa,dani@example.com,U0000004,15,20

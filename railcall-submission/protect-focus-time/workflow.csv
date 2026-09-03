@@ -1,0 +1,5 @@
+node_id,type,provider,action_id,depends_on,for_each,description
+read_calendar,transform,gcal,list_events,,team_members,Reads each team member's schedule for the current week
+find_free_slot,transform,gcal,find_next_free_slot,read_calendar,team_members,Looks for the next free slot of the configured duration to block Focus Time
+book_focus_time,effect,calcom-pro,create_booking,find_free_slot,team_members,Books the slot found as a real Focus Time meeting (side_effects: external — goes through the airlock)
+notify_slack,effect,slack,post_message,book_focus_time,,Publishes a summary to Slack of how many Focus Time blocks were booked this week

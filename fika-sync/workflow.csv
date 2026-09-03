@@ -1,0 +1,22 @@
+node_id,type,provider,action,depends_on,description
+trigger_weekly,trigger,railcall,cron_weekly,,Triggers the weekly analysis (day/time configurable in Studio)
+trigger_slack_command,trigger,slack,slash_command,,Triggers the analysis on demand with /fika-check
+trigger_daily_check,trigger,railcall,cron_daily,,Triggers the daily threshold check (v0.2.0)
+fetch_calcom_bookings,transform,calcom-pro,list_bookings,trigger_weekly;trigger_slack_command,Fetches the team's formal meetings from Cal.com
+fetch_gcal_events,transform,gcal,list_events,trigger_weekly;trigger_slack_command,Fetches ad-hoc Google Calendar events that Cal.com doesn't see
+get_actual_duration,transform,zoom,get_call_duration,fetch_calcom_bookings,Corrects the duration when a meeting ran longer than scheduled (v0.2.0)
+calculate_meeting_load,transform,team-health-analyzer,calculate_meeting_load,fetch_gcal_events;get_actual_duration,Sums meeting hours per person (pure logic)
+classify_team_health,transform,team-health-analyzer,classify_team_health,calculate_meeting_load,Classifies the team as green/yellow/red (pure logic)
+check_daily_threshold,transform,team-health-analyzer,classify_team_health,trigger_daily_check;calculate_meeting_load,Daily check against the individual threshold (v0.2.0)
+resolve_conflicts,transform,gcal,find_next_free_slot,classify_team_health,Looks for the next free slot before blocking if there's a conflict with an already accepted meeting
+protect_focus_time,effect,calcom-pro,create_booking,resolve_conflicts,Blocks focus-time hours for anyone in 🟡 or 🔴
+mirror_gcal_block,effect,gcal,create_event,protect_focus_time,Mirrors the focus-time block onto Google Calendar
+adjust_focus_time,effect,gcal,update_event,mirror_gcal_block;get_actual_duration,Adjusts the focus time if the actual duration differed from what was scheduled (v0.2.0)
+rebalance_queue,transform,team-health-analyzer,rebalance_queue,classify_team_health,Rebalances the round-robin assignment queue away from 🔴
+summarize_team_report,transform,team-health-analyzer,summarize_team_report,classify_team_health;rebalance_queue,Generates the weekly/daily summary text
+verify_and_parse_threshold_click,trigger,slack,interactive_button,,Verifies the signature on the "Adjust my threshold" click (verify_slack_signature) and extracts person+field (parse_interactive_payload)
+publish_slack_summary,effect,slack,post_message,summarize_team_report,Publishes the summary to Slack with an "Adjust my threshold" button
+update_threshold,effect,team-health-analyzer,update_threshold,verify_and_parse_threshold_click,Persists the new threshold when someone uses the Slack button (v0.2.0), only if the signature was valid
+export_to_sheet,effect,sheets,append_row,summarize_team_report,Exports the weekly summary to a shared sheet with history (v0.2.0)
+log_history,effect,sheets,append_row,export_to_sheet,Leaves a historical record separate from the visible summary (v0.2.0)
+audit_log_entry,effect,railcall,write_receipt,protect_focus_time;mirror_gcal_block;publish_slack_summary;export_to_sheet,Generates the signed audit receipt for all actions taken

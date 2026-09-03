@@ -1,0 +1,22 @@
+{
+  "slug": "your-handle/asana",
+  "version": "0.1.0",
+  "description": "Instantiates real tasks from Asana Task Templates.",
+  "auth": { "type": "api_key", "env_var": "ASANA_ACCESS_TOKEN" },
+  "commands": [
+    {
+      "name": "create_tasks_from_template",
+      "description": "POST /task_templates/{gid}/instantiateTask for each given template_gid. Returns asynchronous jobs, not the final tasks directly -- the caller must poll /jobs/{job_gid} if they need to confirm creation.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "template_gids": { "type": "array", "items": { "type": "string" }, "description": "IDs of the Asana Task Templates to instantiate." },
+          "name": { "type": "string", "description": "Optional: overrides the template's default name." }
+        },
+        "required": ["template_gids"]
+      },
+      "side_effects": "external"
+    }
+  ],
+  "license_required": false
+}

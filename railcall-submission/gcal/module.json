@@ -1,0 +1,89 @@
+{
+  "slug": "juani1972/gcal",
+  "version": "0.1.0",
+  "description": "Read and manage Google Calendar events — list, create, update, delete, and find free slots.",
+  "credentials_note": "Read via __rc_helpers__['vault_get']('gcal') at call time, expected shape {\"access_token\": \"...\"} (falls back to \"api_key\") — set up in Studio -> Integrations -> gcal. Static access token, no refresh (see README known limitations). Never read from os.environ.",
+  "requires": {
+    "network": ["www.googleapis.com"],
+    "subprocess": false,
+    "filesystem_writes": []
+  },
+  "commands": [
+    {
+      "name": "list_events",
+      "description": "List events on a calendar within a time range.",
+      "requires": ["gcal"],
+      "input_schema": {
+        "calendar_id": {
+          "type": "string",
+          "required": true,
+          "help": "Usually the person's email — Google treats it as their primary calendar's id."
+        },
+        "time_min_iso": {
+          "type": "string",
+          "required": true,
+          "help": "Start of range, RFC3339 (e.g. 2026-09-01T00:00:00Z)."
+        },
+        "time_max_iso": {
+          "type": "string",
+          "required": true,
+          "help": "End of range, RFC3339."
+        }
+      },
+      "side_effects": "none"
+    },
+    {
+      "name": "find_next_free_slot",
+      "description": "Find the next free slot of a given duration within a search window.",
+      "requires": ["gcal"],
+      "input_schema": {
+        "calendar_id": { "type": "string", "required": true },
+        "duration_minutes": { "type": "integer", "required": true },
+        "search_start_iso": { "type": "string", "required": true },
+        "search_end_iso": { "type": "string", "required": true },
+        "timezone": { "type": "string", "required": false, "default": "UTC" }
+      },
+      "side_effects": "none"
+    },
+    {
+      "name": "create_event",
+      "description": "Create a calendar event.",
+      "requires": ["gcal"],
+      "input_schema": {
+        "calendar_id": { "type": "string", "required": true },
+        "summary": { "type": "string", "required": true },
+        "start_iso": { "type": "string", "required": true },
+        "end_iso": { "type": "string", "required": true },
+        "timezone": { "type": "string", "required": true },
+        "description": { "type": "string", "required": false }
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "update_event",
+      "description": "Edit fields of an existing event (e.g. move it, rename it).",
+      "requires": ["gcal"],
+      "input_schema": {
+        "calendar_id": { "type": "string", "required": true },
+        "event_id": { "type": "string", "required": true },
+        "updates": {
+          "type": "object",
+          "required": true,
+          "help": "Partial Google Calendar event body, e.g. {\"summary\": \"New title\"}."
+        }
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "delete_event",
+      "description": "Delete an event.",
+      "requires": ["gcal"],
+      "input_schema": {
+        "calendar_id": { "type": "string", "required": true },
+        "event_id": { "type": "string", "required": true }
+      },
+      "side_effects": "external"
+    }
+  ],
+  "license_required": false
+}

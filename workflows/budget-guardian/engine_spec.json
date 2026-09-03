@@ -1,0 +1,46 @@
+{
+  "_readme": "Reasoned reconstruction. This workflow depends on TWO RailCall capabilities the original repo diagnosis already flagged as unconfirmed: get_spend_log (reading other workflows' spend) and pause_workflow (pausing a workflow via API). Neither can be validated without access to RailCall's complete admin API documentation (out of scope for this build). See this workflow's README.md.",
+  "workflow_id": "budget-guardian",
+  "version": "0.1.0",
+  "airlock": {
+    "mode": "preview_approve_execute",
+    "dry_run_default": true,
+    "requires_signed_receipt": true
+  },
+  "providers": [
+    {
+      "name": "slack",
+      "module": "slack",
+      "auth": "oauth",
+      "capabilities": ["slash_command", "post_message"],
+      "validated_against_real_account": false
+    },
+    {
+      "name": "railcall",
+      "module": null,
+      "auth": "n/a",
+      "capabilities": ["cron_hourly", "write_receipt"],
+      "unconfirmed_capabilities": ["get_spend_log", "pause_workflow"],
+      "note": "get_spend_log and pause_workflow are this workflow's core, and neither is confirmed. Without them, budget-guardian can't operate autonomously -- see README.md for the fallback plan (manual check and pause)."
+    }
+  ],
+  "internal_modules": [
+    {
+      "name": "budget-guardian-core",
+      "external_calls": false,
+      "requires_credentials": false,
+      "note": "Decides WHAT to pause, doesn't execute the pause. Execution depends on the unconfirmed pause_workflow capability.",
+      "tests_status_as_of_2026_08_30": "11/11 passing"
+    }
+  ],
+  "spend_limits": {
+    "max_spend_cents": 500,
+    "enforced_at": "runtime",
+    "note": "This is the same cap as fika-sync/engine_spec.json — budget-guardian watches the aggregate spend of ALL workflows, not just its own."
+  },
+  "retry_policy": {
+    "max_retries": 3,
+    "backoff": "exponential",
+    "applies_to": ["slack"]
+  }
+}

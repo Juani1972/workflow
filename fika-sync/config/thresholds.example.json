@@ -1,0 +1,13 @@
+{
+  "_readme": "Copy to config/thresholds.json and adjust. The 'Adjust my threshold' button in Slack updates a specific person's threshold here via the update_threshold action, without touching the code.",
+  "default": {
+    "yellow_hours": 15.0,
+    "red_hours": 20.0
+  },
+  "per_person_overrides": {
+    "caro": {
+      "yellow_hours": 12.0,
+      "red_hours": 18.0
+    }
+  }
+}

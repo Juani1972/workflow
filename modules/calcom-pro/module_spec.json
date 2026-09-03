@@ -1,0 +1,44 @@
+{
+  "_readme": "Validated against Cal.com's live official documentation on 2026-08-30: cal-api-version confirmed per endpoint (2026-05-01 for GET /bookings, 2026-02-25 for POST /bookings) -- previously used a single outdated value. update_booking is NOT confirmed: no documented generic PATCH was found, review before using. Validation against a real account is still missing (see tests/test_integration.py and VALIDATION.md at the repo root). Also validate with 'railcall module validate module_spec.json' before publishing.",
+  "module_id": "calcom-pro",
+  "version": "0.1.0",
+  "display_name": "Cal.com Pro",
+  "description": "Integrates Fika Sync with the Cal.com v2 API: lists meetings and creates/edits focus-time blocks. Requires CALCOM_API_KEY.",
+  "language": "python",
+  "entrypoint": "actions.py",
+  "requires_credentials": true,
+  "required_env_vars": ["CALCOM_API_KEY"],
+  "external_calls": true,
+  "external_calls_validated_against_real_account": false,
+  "dependencies": ["requests>=2.31,<3"],
+  "actions": [
+    {
+      "name": "list_bookings",
+      "function": "list_bookings",
+      "inputs": ["status", "cursor"],
+      "output": "bookings",
+      "calcom_endpoint": "GET /v2/bookings"
+    },
+    {
+      "name": "create_booking",
+      "function": "create_booking",
+      "inputs": ["event_type_id", "start_iso", "attendee_name", "attendee_email", "attendee_timezone", "length_in_minutes"],
+      "output": "booking",
+      "calcom_endpoint": "POST /v2/bookings"
+    },
+    {
+      "name": "update_booking",
+      "function": "update_booking",
+      "inputs": ["booking_uid", "updates"],
+      "output": "booking",
+      "calcom_endpoint": "PATCH /v2/bookings/{uid}",
+      "confirmed_against_official_docs": false,
+      "note": "No documented generic PATCH was found for /v2/bookings/{uid}. Review before using."
+    }
+  ],
+  "tests": {
+    "framework": "pytest",
+    "path": "tests/test_actions.py",
+    "status_as_of_2026_08_29": "7/7 passing (all with the HTTP layer mocked, no real network calls)"
+  }
+}

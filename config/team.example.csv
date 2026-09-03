@@ -1,0 +1,4 @@
+person_id,name,calcom_username,gcal_calendar_id,weekly_threshold_hours,role
+p1,Alex Ruiz,alex-ruiz,alex.ruiz@example.com,15,ic
+p2,Sam Torres,sam-torres,sam.torres@example.com,18,manager
+p3,Noa Fernandez,noa-fernandez,noa.fernandez@example.com,15,ic

@@ -1,0 +1,35 @@
+{
+  "slug": "your-handle/notion",
+  "version": "0.1.0",
+  "description": "Creates and updates pages in Notion. Pins Notion-Version 2022-06-28 and uses database_id -- see the versioning risk note in handler.py about the 2025-09-03 switch to data_source_id.",
+  "auth": { "type": "api_key", "env_var": "NOTION_API_KEY" },
+  "commands": [
+    {
+      "name": "create_page",
+      "description": "Creates a page in a database (POST /pages). Used by create_notion_profile.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "database_id": { "type": "string" },
+          "properties": { "type": "object", "description": "Notion properties' exact format depends on the target database's column schema." }
+        },
+        "required": ["database_id", "properties"]
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "update_page",
+      "description": "Updates an existing page's properties (PATCH /pages/{id}). Used by mark_onboarding_complete.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "page_id": { "type": "string" },
+          "properties": { "type": "object" }
+        },
+        "required": ["page_id", "properties"]
+      },
+      "side_effects": "external"
+    }
+  ],
+  "license_required": false
+}

@@ -1,0 +1,70 @@
+{
+  "slug": "your-handle/gcal",
+  "version": "0.1.0",
+  "description": "Lectura y escritura de eventos en Google Calendar: listar, crear, actualizar y borrar eventos.",
+  "auth": { "type": "oauth2", "provider": "google" },
+  "commands": [
+    {
+      "name": "list_events",
+      "description": "Lista eventos en un rango de fechas (events.list). GET /calendars/{calendarId}/events.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "calendar_id": { "type": "string", "description": "Por defecto 'primary'. En fika-sync suele ser el gcal_calendar_id de team.csv." },
+          "from_date": { "type": "string", "description": "RFC3339, ej. 2026-01-01T00:00:00Z" },
+          "to_date": { "type": "string", "description": "RFC3339" }
+        },
+        "required": ["from_date", "to_date"]
+      },
+      "side_effects": "none"
+    },
+    {
+      "name": "create_event",
+      "description": "Crea un evento (events.insert). POST /calendars/{calendarId}/events.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "calendar_id": { "type": "string" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "start": { "type": "string", "description": "RFC3339" },
+          "end": { "type": "string", "description": "RFC3339" },
+          "timezone": { "type": "string", "description": "IANA, ej. Europe/Madrid" }
+        },
+        "required": ["title", "start", "end", "timezone"]
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "update_event",
+      "description": "Actualiza campos de un evento existente (events.patch, admite edicion parcial incluido el titulo -- a diferencia de Cal.com).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "calendar_id": { "type": "string" },
+          "event_id": { "type": "string" },
+          "title": { "type": "string" },
+          "start": { "type": "string" },
+          "end": { "type": "string" },
+          "timezone": { "type": "string" }
+        },
+        "required": ["event_id"]
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "delete_event",
+      "description": "Borra un evento (events.delete). DELETE /calendars/{calendarId}/events/{eventId}.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "calendar_id": { "type": "string" },
+          "event_id": { "type": "string" }
+        },
+        "required": ["event_id"]
+      },
+      "side_effects": "external"
+    }
+  ],
+  "license_required": false
+}

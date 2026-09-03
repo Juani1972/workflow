@@ -1,0 +1,103 @@
+{
+  "slug": "your-handle/sheets",
+  "version": "0.1.0",
+  "description": "Writing to Google Sheets: appending rows and upsert (update if it exists, append if not) by key column.",
+  "auth": {
+    "type": "oauth2",
+    "provider": "google"
+  },
+  "commands": [
+    {
+      "name": "append_row",
+      "description": "Appends a row to the end of the table detected in the range (values.append). Used by write_audit_log.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "spreadsheet_id": {
+            "type": "string"
+          },
+          "sheet": {
+            "type": "string",
+            "description": "Name of the sheet/tab, e.g. 'fika_audit_log'."
+          },
+          "row": {
+            "type": "array",
+            "items": {},
+            "description": "Row values, in column order."
+          }
+        },
+        "required": [
+          "spreadsheet_id",
+          "sheet",
+          "row"
+        ]
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "update_row",
+      "description": "Overwrites a specific row by row number (values.update, PUT). row_number is 1-based and includes headers.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "spreadsheet_id": {
+            "type": "string"
+          },
+          "sheet": {
+            "type": "string"
+          },
+          "row_number": {
+            "type": "integer",
+            "description": "1-based, includes the header row if it exists."
+          },
+          "row": {
+            "type": "array",
+            "items": {}
+          }
+        },
+        "required": [
+          "spreadsheet_id",
+          "sheet",
+          "row_number",
+          "row"
+        ]
+      },
+      "side_effects": "external"
+    },
+    {
+      "name": "upsert_row",
+      "description": "NOT a native Sheets endpoint -- custom logic: looks for key_value in key_column_index; if it exists, updates that row, if not, appends it. Makes 2-3 HTTP calls, not 1.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "spreadsheet_id": {
+            "type": "string"
+          },
+          "sheet": {
+            "type": "string"
+          },
+          "key_value": {
+            "type": "string"
+          },
+          "key_column_index": {
+            "type": "integer",
+            "default": 0,
+            "description": "0-based; 0 = column A."
+          },
+          "row": {
+            "type": "array",
+            "items": {}
+          }
+        },
+        "required": [
+          "spreadsheet_id",
+          "sheet",
+          "key_value",
+          "row"
+        ]
+      },
+      "side_effects": "external"
+    }
+  ],
+  "license_required": false
+}
